@@ -1,0 +1,29 @@
+https://sequelize.org/docs/v6/other-topics/migrations/
+
+npm install --save-dev sequelize-cli
+npx sequelize-cli init
+npx sequelize-cli model:generate --name User --attributes email:string,password:string,name:string,status:string
+npx sequelize-cli db:migrate
+npx sequelize-cli db:migrate:undo
+npx sequelize-cli db:migrate:undo:all --to XXXXXXXXXXXXXX-create-posts.js
+
+npx sequelize-cli seed:generate --name demo-user
+module.exports = {
+  up: (queryInterface, Sequelize) => {
+    return queryInterface.bulkInsert('Users', [{
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'example@example.com',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }]);
+  },
+  down: (queryInterface, Sequelize) => {
+    return queryInterface.bulkDelete('Users', null, {});
+  }
+};
+
+npx sequelize-cli db:seed:all
+npx sequelize-cli db:seed:undo
+npx sequelize-cli db:seed:undo --seed name-of-seed-as-in-data
+npx sequelize-cli db:seed:undo:all

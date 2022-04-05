@@ -1,4 +1,4 @@
-const db = require("../../models");
+const { User } = require("../../models");
 const userDao = {
   findAll,
   findOne,
@@ -9,29 +9,35 @@ const userDao = {
 };
 
 function findAll() {
-  return db.User.findAll();
+  return User.findAll({
+    attributes: { exclude: ["password", "createdAt", "updatedAt"] },
+  });
 }
 
 function findOne(email) {
-  const user = db.User.findOne({ where: { email } });
+  const user = User.findOne({
+    where: { email },
+    attributes: { exclude: ["password", "createdAt", "updatedAt"] },
+  });
   return user;
 }
 
 function findById(id) {
-  return db.User.findByPk(id);
+  return User.findByPk(id, {
+    attributes: { exclude: ["password", "createdAt", "updatedAt"] },
+  });
 }
 
 function deleteById(id) {
-  return db.User.destroy({ where: { id: id } });
+  return User.destroy({ where: { id: id } });
 }
 
 function create(user) {
-  var newuser = new db.User(user);
+  var newuser = new User(user);
   return newuser.save();
 }
 
 function update(user, id) {
-  var updateuser = { ...user };
-  return db.User.update(updateuser, { where: { id: id } });
+  return User.update(user, { where: { id } });
 }
 module.exports = userDao;

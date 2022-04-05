@@ -1,7 +1,7 @@
 const userDao = require("../daos/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const auth = require("../middleware/auth");
+const { verifyToken } = require("../middleware/auth");
 
 const userController = {
   register,
@@ -13,21 +13,21 @@ const userController = {
   deleteUserById,
 };
 
-async function register(req, res) {
+function register(req, res) {
   let user = req.body;
 
   if (!(user.name && user.email && user.password)) {
     res.status(400).send({ status: "error", message: "All input is required" });
   }
 
-  const emailIsExists = await userDao.findOne(user.email);
+  const emailIsExists = userDao.findOne(user.email);
 
   if (emailIsExists) {
     return res
       .status(409)
       .json({ status: "error", message: "Email has already been taken" });
   } else {
-    const encryptedPassword = await bcrypt.hash(user.password, 10);
+    const encryptedPassword = bcrypt.hash(user.password, 10);
     user.password = encryptedPassword;
     userDao
       .create(user)
@@ -59,9 +59,13 @@ async function login(req, res) {
     .findOne(email)
     .then(async (user) => {
       if (user && (await bcrypt.compare(password, user.password))) {
-        const token = jwt.sign({ id: user.id, email }, process.env.TOKEN_KEY, {
-          expiresIn: "2h",
-        });
+        const token = jwt.sign(
+          { id: user.id, email, role: user.role },
+          process.env.TOKEN_KEY,
+          {
+            expiresIn: "2h",
+          }
+        );
         user.token = token;
         return res.status(200).json({
           status: "success",
@@ -83,8 +87,8 @@ async function login(req, res) {
 }
 
 function me(req, res) {
-  const userId = auth.verifyToken(req, res).id;
-  if (userId)
+  const userId = verifyToken(req, res).id;
+  if (userId) {
     userDao
       .findById(userId)
       .then((user) => {
@@ -93,6 +97,9 @@ function me(req, res) {
       .catch((error) => {
         console.log(error);
       });
+  } else {
+    res.status(400).send({ status: "error", message: "Invalid Credentials" });
+  }
 }
 
 function findUserById(req, res) {
@@ -127,7 +134,7 @@ function updateUser(req, res) {
     .then((user) => {
       if (user == 1) {
         res.status(200).json({
-          message: "user updated successfully",
+          message: "User updated successfully",
           user: { id, ...req.body },
         });
       } else {
@@ -144,7 +151,7 @@ function updateUser(req, res) {
 }
 
 function findUsers(req, res) {
-  const isAdmin = auth.verifyToken(req, res).role == "admin";
+  const isAdmin = verifyToken(req, res).role == "admin";
   if (!isAdmin) {
     return res.status(403).json({
       status: "error",

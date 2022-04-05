@@ -17,7 +17,7 @@ function findAll() {
 function findOne(email) {
   const user = User.findOne({
     where: { email },
-    attributes: { exclude: ["password", "createdAt", "updatedAt"] },
+    attributes: { exclude: ["createdAt", "updatedAt"] },
   });
   return user;
 }

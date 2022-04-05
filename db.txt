@@ -1,6 +1,7 @@
 https://sequelize.org/docs/v6/other-topics/migrations/
 
 npm install --save-dev sequelize-cli
+
 npx sequelize-cli init
 npx sequelize-cli model:generate --name User --attributes email:string,password:string,name:string,status:string
 npx sequelize-cli db:migrate

@@ -23,29 +23,31 @@ async function register(req, res) {
   const emailIsExists = await userDao.findOne(user.email);
 
   if (emailIsExists) {
-    return res.status(409).send("Email Already Used");
-  }
-
-  const encryptedPassword = await bcrypt.hash(user.password, 10);
-  user.password = encryptedPassword;
-  userDao
-    .create(user)
-    .then((user) => {
-      const token = jwt.sign(
-        { id: user.id, email: user.email },
-        process.env.TOKEN_KEY,
-        {
-          expiresIn: "2h",
-        }
-      );
-      res.status(200).json({
-        status: "success",
-        data: { user: { name: user.name, email: user.email, token } },
+    return res
+      .status(409)
+      .json({ status: "error", message: "Email has already been taken" });
+  } else {
+    const encryptedPassword = await bcrypt.hash(user.password, 10);
+    user.password = encryptedPassword;
+    userDao
+      .create(user)
+      .then((user) => {
+        const token = jwt.sign(
+          { id: user.id, email: user.email },
+          process.env.TOKEN_KEY,
+          {
+            expiresIn: "2h",
+          }
+        );
+        res.status(200).json({
+          status: "success",
+          data: { user: { name: user.name, email: user.email, token } },
+        });
+      })
+      .catch((error) => {
+        console.log(error);
       });
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+  }
 }
 
 async function login(req, res) {
@@ -73,7 +75,7 @@ async function login(req, res) {
           },
         });
       }
-      res.status(400).send("Invalid Credentials");
+      res.status(400).send({ status: "error", message: "Invalid Credentials" });
     })
     .catch((error) => {
       console.log(error);
@@ -82,14 +84,15 @@ async function login(req, res) {
 
 function me(req, res) {
   const userId = auth.verifyToken(req, res).id;
-  userDao
-    .findById(userId)
-    .then((user) => {
-      res.send(user);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+  if (userId)
+    userDao
+      .findById(userId)
+      .then((user) => {
+        res.send(user);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
 }
 
 function findUserById(req, res) {

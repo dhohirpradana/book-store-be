@@ -1,4 +1,4 @@
-const { user } = require("../../models");
+const { user, role } = require("../../models");
 const userDao = {
   findAll,
   findEmail,
@@ -11,6 +11,11 @@ const userDao = {
 async function findAll() {
   return await user.findAll({
     attributes: { exclude: ["password", "createdAt", "updatedAt"] },
+    include: {
+      model: role,
+      as: "user_role",
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    },
   });
 }
 
@@ -18,12 +23,24 @@ async function findEmail(email) {
   return await user.findOne({
     where: { email },
     attributes: { exclude: ["role", "createdAt", "updatedAt"] },
+    include: {
+      model: role,
+      as: "user_role",
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    },
   });
 }
 
 async function findById(id) {
   return await user.findByPk(id, {
-    attributes: { exclude: ["password", "createdAt", "updatedAt"] },
+    attributes: {
+      exclude: ["role", "password", "createdAt", "updatedAt"],
+    },
+    include: {
+      model: role,
+      as: "user_role",
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    },
   });
 }
 

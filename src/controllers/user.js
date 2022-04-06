@@ -19,34 +19,34 @@ function register(req, res) {
     res.status(400).send({ status: "error", message: "All input is required" });
   }
 
-  const emailIsExists = userDao.findEmail(user.email);
-
-  if (emailIsExists) {
-    return res
-      .status(409)
-      .json({ status: "error", message: "Email has already been taken" });
-  } else {
-    const encryptedPassword = bcrypt.hash(user.password, 10);
-    user.password = encryptedPassword;
-    userDao
-      .create(user)
-      .then((user) => {
-        const token = jwt.sign(
-          { id: user.id, email: user.email },
-          process.env.TOKEN_KEY,
-          {
-            expiresIn: "2h",
-          }
-        );
-        res.status(200).json({
-          status: "success",
-          data: { user: { name: user.name, email: user.email, token } },
+  userDao.findEmail(user.email).then(async (isExistsEmail) => {
+    if (isExistsEmail) {
+      return res
+        .status(409)
+        .json({ status: "error", message: "Email has already been taken" });
+    } else {
+      const encryptedPassword = await bcrypt.hash(user.password, 10);
+      user.password = encryptedPassword;
+      userDao
+        .create(user)
+        .then((user) => {
+          const token = jwt.sign(
+            { id: user.id, email: user.email },
+            process.env.TOKEN_KEY,
+            {
+              expiresIn: "2h",
+            }
+          );
+          res.status(200).json({
+            status: "success",
+            data: { user: { name: user.name, email: user.email, token } },
+          });
+        })
+        .catch((error) => {
+          console.log(error);
         });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
+    }
+  });
 }
 
 async function login(req, res) {
@@ -57,7 +57,6 @@ async function login(req, res) {
   userDao
     .findEmail(email)
     .then(async (user) => {
-      console.log(user);
       if (user && (await bcrypt.compare(password, user.password))) {
         const token = jwt.sign(
           { id: user.id, email, role: user.role },
@@ -66,14 +65,14 @@ async function login(req, res) {
             expiresIn: "2h",
           }
         );
+        delete user.dataValues.password;
+        delete user.dataValues.role;
         user.token = token;
         return res.status(200).json({
           status: "success",
           data: {
             user: {
-              name: user.name,
-              email: user.email,
-              status: user.role,
+              ...user.dataValues,
               token,
             },
           },
@@ -87,12 +86,19 @@ async function login(req, res) {
 }
 
 function me(req, res) {
-  const userId = res.user.id;
+  const userId = req.user.id;
   if (userId) {
     userDao
       .findById(userId)
       .then((user) => {
-        res.send(user);
+        res.status(200).json({
+          status: "success",
+          data: {
+            user: {
+              ...user.dataValues,
+            },
+          },
+        });
       })
       .catch((error) => {
         console.log(error);
@@ -112,6 +118,8 @@ function findUserById(req, res) {
       console.log(error);
     });
 }
+
+// Admin
 
 function deleteUserById(req, res) {
   userDao
@@ -151,7 +159,7 @@ function updateUser(req, res) {
 }
 
 function findUsers(req, res) {
-  if (!isAdmin) {
+  if (req.role > 2) {
     return res.status(403).json({
       status: "error",
       message: "Forbidden!",

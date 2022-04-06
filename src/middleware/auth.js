@@ -3,7 +3,7 @@ const config = process.env;
 
 const auth = { verifyToken, verifyAdmin };
 
-function verifyToken(req, res) {
+function verifyToken(req, res, next) {
   const token =
     req.body.access_token ||
     req.query.access_token ||

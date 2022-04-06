@@ -1,4 +1,4 @@
-const { User } = require("../../models");
+const { user } = require("../../models");
 const userDao = {
   findAll,
   findEmail,
@@ -8,44 +8,36 @@ const userDao = {
   update,
 };
 
-function findAll() {
-  return User.findAll({
+async function findAll() {
+  return await user.findAll({
     attributes: { exclude: ["password", "createdAt", "updatedAt"] },
   });
 }
 
-function findEmail(email) {
-  const user = User.findOne({
+async function findEmail(email) {
+  return await user.findOne({
     where: { email },
-    include: {
-      model: role,
-      as: "role",
-    },
-    attributes: { exclude: ["createdAt", "updatedAt"] },
+    attributes: { exclude: ["role", "createdAt", "updatedAt"] },
   });
-  return user;
 }
 
-function findById(id) {
-  return User.findByPk(id, {
-    include: {
-      model: role,
-      as: "role",
-    },
+async function findById(id) {
+  return await user.findByPk(id, {
     attributes: { exclude: ["password", "createdAt", "updatedAt"] },
   });
 }
 
-function deleteById(id) {
-  return User.destroy({ where: { id: id } });
+async function deleteById(id) {
+  return await user.destroy({ where: { id: id } });
 }
 
-function create(user) {
-  var newuser = new User(user);
-  return newuser.save();
+async function create(data) {
+  var newuser = new user(data);
+  return await newuser.save();
 }
 
-function update(user, id) {
-  return User.update(user, { where: { id } });
+async function update(data, id) {
+  return await user.update(data, { where: { id } });
 }
+
 module.exports = userDao;

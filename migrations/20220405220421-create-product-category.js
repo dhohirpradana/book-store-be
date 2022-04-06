@@ -21,16 +21,18 @@ module.exports = {
           model: "categories",
           key: "id",
         },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('now')
+        defaultValue: Sequelize.fn("now"),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('now')
+        defaultValue: Sequelize.fn("now"),
       },
     });
   },

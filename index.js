@@ -1,14 +1,14 @@
-const bodyParser = require("body-parser");
 const express = require("express");
-const cors = require("cors");
+const bodyParser = require("body-parser");
+const multer = require("multer");
 require("dotenv").config();
 
 const db = require("./models");
 const app = express();
 
-app.use(bodyParser.json({ limit: "50mb" }));
-app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
-app.use(cors("*"));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(multer().array());
 
 app.use("/api/v1/", require("./src/routes/index"));
 

@@ -1,4 +1,4 @@
-const { user, role } = require("../../models");
+const { User, Role } = require("../../models");
 const userDao = {
   findAll,
   findEmail,
@@ -9,52 +9,52 @@ const userDao = {
 };
 
 async function findAll() {
-  return await user.findAll({
-    attributes: { exclude: ["password", "createdAt", "updatedAt"] },
+  return await User.findAll({
+    attributes: { exclude: ["idRole", "password", "createdAt", "updatedAt"] },
     include: {
-      model: role,
-      as: "user_role",
+      model: Role,
+      as: "role",
       attributes: { exclude: ["createdAt", "updatedAt"] },
     },
   });
 }
 
 async function findEmail(email) {
-  return await user.findOne({
+  return await User.findOne({
     where: { email },
-    attributes: { exclude: ["role", "createdAt", "updatedAt"] },
+    attributes: { exclude: ["idRole", "createdAt", "updatedAt"] },
     include: {
-      model: role,
-      as: "user_role",
+      model: Role,
+      as: "role",
       attributes: { exclude: ["createdAt", "updatedAt"] },
     },
   });
 }
 
 async function findById(id) {
-  return await user.findByPk(id, {
+  return await User.findByPk(id, {
     attributes: {
-      exclude: ["role", "password", "createdAt", "updatedAt"],
+      exclude: ["idRole", "password", "createdAt", "updatedAt"],
     },
     include: {
-      model: role,
-      as: "user_role",
+      model: Role,
+      as: "role",
       attributes: { exclude: ["createdAt", "updatedAt"] },
     },
   });
 }
 
 async function deleteById(id) {
-  return await user.destroy({ where: { id: id } });
+  return await User.destroy({ where: { id: id } });
 }
 
 async function create(data) {
-  var newuser = new user(data);
+  var newuser = new User(data);
   return await newuser.save();
 }
 
-async function update(data, id) {
-  return await user.update(data, { where: { id } });
+async function update(user, id) {
+  return await User.update(user, { where: { id } });
 }
 
 module.exports = userDao;

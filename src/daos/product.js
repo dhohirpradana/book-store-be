@@ -1,4 +1,4 @@
-const { product, productCategory } = require("../../models");
+const { Product } = require("../../models");
 const productDao = {
   findAll,
   create,
@@ -8,35 +8,30 @@ const productDao = {
 };
 
 async function findAll() {
-  return await product.findAll({
-    attributes: { exclude: ["createdAt", "updatedAt"] },
+  return await Product.findAll({
+    attributes: { exclude: ["idUser", "createdAt", "updatedAt"] },
   });
 }
 
 async function findById(id) {
-  return await product.findByPk(id, {
+  return await Product.findByPk(id, {
     attributes: {
       exclude: ["createdAt", "updatedAt"],
     },
-    // include: {
-    //   model: role,
-    //   as: "user_role",
-    //   attributes: { exclude: ["createdAt", "updatedAt"] },
-    // },
   });
 }
 
 async function deleteById(id) {
-  return await product.destroy({ where: { id: id } });
+  return await Product.destroy({ where: { id: id } });
 }
 
-async function create(data) {
-  var newuser = new product(data);
+async function create(product) {
+  var newuser = new Product(product);
   return await newuser.save();
 }
 
-async function update(data, id) {
-  return await product.update(data, { where: { id } });
+async function update(product, id) {
+  return await Product.update(product, { where: { id } });
 }
 
 module.exports = productDao;

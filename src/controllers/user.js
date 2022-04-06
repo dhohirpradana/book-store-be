@@ -1,6 +1,7 @@
 const userDao = require("../daos/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const Joi = require("joi");
 
 const userController = {
   register,
@@ -15,63 +16,85 @@ const userController = {
 function register(req, res) {
   let user = req.body;
 
-  if (!(user.name && user.email && user.password)) {
-    res.status(400).send({ error: { message: "All input is required" } });
-  }
+  const schema = Joi.object({
+    name: Joi.string().min(3).required(),
+    email: Joi.string().min(3).required().email(),
+    password: Joi.string()
+      .min(6)
+      .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$"))
+      .required(),
+  });
+
+  const { error } = schema.validate(user);
+
+  if (error)
+    return res
+      .status(400)
+      .send({ error: { message: error.details[0].message } });
 
   userDao.findEmail(user.email).then(async (isExistsEmail) => {
-    if (isExistsEmail) {
-      return res
-        .status(409)
-        .json({ error: { message: "Email has already been taken" } });
-    } else {
-      const encryptedPassword = await bcrypt.hash(user.password, 10);
-      user.password = encryptedPassword;
-      userDao
-        .create(user)
-        .then((user) => {
-          const token = jwt.sign(
-            {
-              id: user.id,
-              name: user.name,
-              email: user.email,
-              role: user.role,
-            },
-            process.env.TOKEN_KEY,
-            {
-              expiresIn: "2h",
-            }
-          );
-          res.status(201).json({
-            status: "success",
-            data: { user: { name: user.name, email: user.email, token } },
-          });
-        })
-        .catch((error) => {
-          console.log(error);
+    if (isExistsEmail)
+      return res.status(409).json({
+        error: {
+          message: "Email has already been taken",
+          data: { email: user.email },
+        },
+      });
+
+    const encryptedPassword = await bcrypt.hash(user.password, 10);
+    user.password = encryptedPassword;
+    userDao
+      .create(user)
+      .then((user) => {
+        const token = jwt.sign(
+          {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+          },
+          process.env.TOKEN_KEY,
+          {
+            expiresIn: "2h",
+          }
+        );
+        res.status(201).json({
+          status: "success",
+          data: { user: { name: user.name, email: user.email, token } },
         });
-    }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   });
 }
 
 async function login(req, res) {
   const { email, password } = req.body;
-  if (!(email && password)) {
-    res.status(400).send({ error: { message: "All input is required" } });
-  }
+  const schema = Joi.object({
+    email: Joi.string().min(1).required(),
+    password: Joi.string().min(1).required(),
+  });
+
+  const { error } = schema.validate(req.body);
+
+  if (error)
+    return res
+      .status(400)
+      .send({ error: { message: error.details[0].message } });
+
   userDao
     .findEmail(email)
     .then(async (user) => {
       if (user && (await bcrypt.compare(password, user.password))) {
         const token = jwt.sign(
-          { id: user.id, name: user.name, email, role: user.role },
+          { id: user.id, name: user.name, email, role: user.role.id },
           process.env.TOKEN_KEY,
           {
             expiresIn: "2h",
           }
         );
         delete user.dataValues.password;
-        delete user.dataValues.role;
         user.token = token;
         return res.status(200).json({
           status: "success",
@@ -92,29 +115,42 @@ async function login(req, res) {
 
 function me(req, res) {
   const userId = req.user.id;
-  if (userId) {
-    userDao
-      .findById(userId)
-      .then((user) => {
-        res.status(200).json({
-          status: "success",
-          data: {
-            user,
+  if (userId)
+    return res.status(400).send({ error: { message: "Invalid Credentials" } });
+  userDao
+    .findById(userId)
+    .then((user) => {
+      if (user != 1)
+        return res.status(404).json({
+          error: {
+            message: "Not exists!",
+            "object id": id,
           },
         });
-      })
-      .catch((error) => {
-        console.log(error);
+      res.status(200).json({
+        status: "success",
+        data: {
+          user,
+        },
       });
-  } else {
-    res.status(400).send({ error: { message: "Invalid Credentials" } });
-  }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 }
 
 function findUserById(req, res) {
+  const id = req.params.id;
   userDao
-    .findById(req.params.id)
+    .findById(id)
     .then((user) => {
+      if (user != 1)
+        return res.status(404).json({
+          error: {
+            message: "Not exists!",
+            "object id": id,
+          },
+        });
       res.send({
         status: "success",
         data: { user },
@@ -128,9 +164,17 @@ function findUserById(req, res) {
 // Admin
 
 function deleteUserById(req, res) {
+  const id = req.params.id;
   userDao
-    .deleteById(req.params.id)
+    .deleteById(id)
     .then((user) => {
+      if (user != 1)
+        return res.status(404).json({
+          error: {
+            message: "Not exists!",
+            "object id": id,
+          },
+        });
       res.status(200).json({
         message: "User deleted successfully",
         data: { user },
@@ -146,19 +190,17 @@ function updateUser(req, res) {
   userDao
     .update(req.body, id)
     .then((user) => {
-      if (user == 1) {
-        res.status(200).json({
-          message: "User updated successfully",
-          data: { user: { id, ...req.body } },
-        });
-      } else {
-        res.status(404).json({
+      if (user != 1)
+        return res.status(404).json({
           error: {
             message: "Not exists!",
             "object id": id,
           },
         });
-      }
+      res.status(200).json({
+        message: "User updated successfully",
+        data: { user: { id, ...req.body } },
+      });
     })
     .catch((error) => {
       console.log(error);
@@ -166,13 +208,6 @@ function updateUser(req, res) {
 }
 
 function findUsers(req, res) {
-  if (req.role > 2) {
-    return res.status(403).json({
-      error: {
-        message: "Forbidden!",
-      },
-    });
-  }
   userDao
     .findAll()
     .then((users) => {

@@ -5,9 +5,7 @@ const auth = { verifyToken, verifyAdmin };
 
 function verifyToken(req, res, next) {
   const raw = req.header("Authorization") || req.query.access_token;
-
   const token = raw && raw.split(" ")[1];
-  console.log(token);
 
   if (!token) {
     return res.status(403).send({
@@ -26,9 +24,8 @@ function verifyToken(req, res, next) {
 }
 
 function verifyAdmin(req, res, next) {
-  const raw = req.headers["x-access-token"] || req.query.access_token;
-
-  const token = raw.split(" ")[1];
+  const raw = req.header("Authorization") || req.query.access_token;
+  const token = raw && raw.split(" ")[1];
 
   if (!token) {
     return res.status(403).send({
@@ -39,7 +36,6 @@ function verifyAdmin(req, res, next) {
   }
   try {
     const decoded = jwt.verify(token, config.TOKEN_KEY);
-    console.log(decoded);
     if (decoded.role < 3) {
       return res.status(401).json({ error: { message: "Unauthorized" } });
     }

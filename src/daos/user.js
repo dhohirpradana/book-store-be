@@ -1,7 +1,7 @@
 const { User } = require("../../models");
 const userDao = {
   findAll,
-  findOne,
+  findEmail,
   create,
   findById,
   deleteById,
@@ -14,9 +14,13 @@ function findAll() {
   });
 }
 
-function findOne(email) {
+function findEmail(email) {
   const user = User.findOne({
     where: { email },
+    include: {
+      model: role,
+      as: "role",
+    },
     attributes: { exclude: ["createdAt", "updatedAt"] },
   });
   return user;
@@ -24,6 +28,10 @@ function findOne(email) {
 
 function findById(id) {
   return User.findByPk(id, {
+    include: {
+      model: role,
+      as: "role",
+    },
     attributes: { exclude: ["password", "createdAt", "updatedAt"] },
   });
 }

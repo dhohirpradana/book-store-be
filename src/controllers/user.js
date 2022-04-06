@@ -1,7 +1,6 @@
 const userDao = require("../daos/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { verifyToken } = require("../middleware/auth");
 
 const userController = {
   register,
@@ -20,7 +19,7 @@ function register(req, res) {
     res.status(400).send({ status: "error", message: "All input is required" });
   }
 
-  const emailIsExists = userDao.findOne(user.email);
+  const emailIsExists = userDao.findEmail(user.email);
 
   if (emailIsExists) {
     return res
@@ -56,8 +55,9 @@ async function login(req, res) {
     res.status(400).send({ status: "error", message: "All input is required" });
   }
   userDao
-    .findOne(email)
+    .findEmail(email)
     .then(async (user) => {
+      console.log(user);
       if (user && (await bcrypt.compare(password, user.password))) {
         const token = jwt.sign(
           { id: user.id, email, role: user.role },
@@ -87,7 +87,7 @@ async function login(req, res) {
 }
 
 function me(req, res) {
-  const userId = verifyToken(req, res).id;
+  const userId = res.user.id;
   if (userId) {
     userDao
       .findById(userId)
@@ -151,7 +151,6 @@ function updateUser(req, res) {
 }
 
 function findUsers(req, res) {
-  const isAdmin = verifyToken(req, res).role == "admin";
   if (!isAdmin) {
     return res.status(403).json({
       status: "error",

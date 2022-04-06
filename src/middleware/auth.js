@@ -21,7 +21,7 @@ function verifyToken(req, res) {
   } catch (err) {
     return res.status(401).json({ status: "error", message: "Unauthorized" });
   }
-  return req.user;
+  return next();
 }
 
 function verifyAdmin(req, res, next) {
@@ -39,7 +39,7 @@ function verifyAdmin(req, res, next) {
   try {
     const decoded = jwt.verify(token, config.TOKEN_KEY);
     console.log(decoded);
-    if (decoded.role != "admin") {
+    if (decoded.role != 1) {
       return res.status(401).json({ status: "error", message: "Unauthorized" });
     }
   } catch (err) {

@@ -1,9 +1,9 @@
 const jwt = require("jsonwebtoken");
 const config = process.env;
 
-const auth = { verifyToken, verifyAdmin };
+const auth = { verifyUser, verifyAdmin };
 
-function verifyToken(req, res, next) {
+function verifyUser(req, res, next) {
   const raw = req.header("Authorization") || req.query.access_token;
   const token = raw && raw.split(" ")[1];
 

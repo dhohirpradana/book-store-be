@@ -21,6 +21,18 @@ module.exports = (sequelize, DataTypes) => {
           name: "idBuyer",
         },
       });
+
+      Transaction.belongsTo(models.Product, {
+        as: "product",
+        foreignKey: {
+          name: "idProduct",
+        },
+      });
+
+      Transaction.belongsTo(models.TransactionStatus, {
+        as: "status",
+        foreignKey: { name: "idStatus" },
+      });
     }
   }
   Transaction.init(
@@ -29,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
       idBuyer: DataTypes.INTEGER,
       idSeller: DataTypes.INTEGER,
       price: DataTypes.BIGINT,
-      status: DataTypes.INTEGER,
+      idStatus: DataTypes.INTEGER,
     },
     {
       sequelize,

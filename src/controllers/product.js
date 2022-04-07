@@ -119,7 +119,7 @@ function updateProduct(req, res) {
       if (req.user.id != product.idUser)
         return res.status(403).json({
           error: {
-            message: "Only the product owner can access!",
+            message: "Forbidden!",
           },
         });
 
@@ -159,7 +159,7 @@ function deleteProduct(req, res) {
       if (req.user.id != product.idUser)
         return res.status(403).json({
           error: {
-            message: "Only the product owner can access!",
+            message: "Forbidden!",
           },
         });
 

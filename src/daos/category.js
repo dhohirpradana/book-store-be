@@ -30,8 +30,8 @@ async function findName(name) {
 }
 
 async function create(category) {
-  var newuser = new Category(category);
-  return await newuser.save();
+  var newcategory = new Category(category);
+  return await newcategory.save();
 }
 
 async function update(category, id) {
@@ -41,8 +41,6 @@ async function update(category, id) {
 async function deleteById(id) {
   return await Category.destroy({
     where: { id: id },
-    ctruncate: true,
-    cascade: false,
   });
 }
 

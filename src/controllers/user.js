@@ -177,7 +177,7 @@ function deleteUserById(req, res) {
         });
       res.status(200).json({
         message: "User deleted successfully",
-        data: { user },
+        data: { "object id": id },
       });
     })
     .catch((error) => {

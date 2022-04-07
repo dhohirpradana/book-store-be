@@ -144,9 +144,16 @@ function deleteCategory(req, res) {
       categoryDao
         .deleteById(id)
         .then((category) => {
+          if (category != 1)
+            return res.status(404).json({
+              error: {
+                message: "Not exists!",
+                "object id": id,
+              },
+            });
           res.status(200).json({
             message: "Category deleted successfully",
-            data: { category },
+            data: { "object id": id },
           });
         })
         .catch((error) => {

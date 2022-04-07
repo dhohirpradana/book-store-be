@@ -26,8 +26,8 @@ async function deleteById(id) {
 }
 
 async function create(product) {
-  var newuser = new Product(product);
-  return await newuser.save();
+  var newproduct = new Product(product);
+  return await newproduct.save();
 }
 
 async function update(product, id) {

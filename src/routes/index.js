@@ -4,7 +4,8 @@ const userController = require("../controllers/user");
 const productController = require("../controllers/product");
 const categoryController = require("../controllers/category");
 const transactionController = require("../controllers/transaction");
-const { verifyAdmin, verifyUser } = require("../middleware/auth");
+const { verifyAdmin, verifyUser } = require("../middlewares/auth");
+const { uploadFile } = require("../middlewares/uploadFile");
 
 //! User
 router.post("/register", userController.register);
@@ -14,14 +15,19 @@ router.get("/user/:id", verifyUser, userController.findUserById);
 // router.patch("/me", verifyUser, userController.meUpdate);
 // router.delete("/me", verifyUser, userController.meDelete);
 
-router.patch("/user/:id", verifyAdmin, userController.updateUser);
-router.delete("/user/:id", verifyAdmin, userController.deleteUserById);
+router.patch("/user", verifyUser, userController.updateUser);
+router.delete("/user/:id", verifyAdmin, userController.deleteUser);
 router.get("/users", verifyAdmin, userController.findUsers);
 
 //! Product
 router.get("/products", productController.findProducts);
 router.get("/product/:id", productController.findProductById);
-router.post("/products", verifyUser, productController.createProduct);
+router.post(
+  "/product",
+  verifyUser,
+  uploadFile("image"),
+  productController.createProduct
+);
 router.patch("/product/:id", verifyUser, productController.updateProduct);
 router.delete("/product/:id", verifyUser, productController.deleteProduct);
 
@@ -48,15 +54,7 @@ router.get(
   verifyUser,
   transactionController.findTransactionById
 );
-router.get(
-  "/sales",
-  verifyUser,
-  transactionController.findTransactionSell
-);
-router.get(
-  "/purchases",
-  verifyUser,
-  transactionController.findTransactionBuy
-);
+router.get("/sales", verifyUser, transactionController.findTransactionSell);
+router.get("/purchases", verifyUser, transactionController.findTransactionBuy);
 
 module.exports = router;

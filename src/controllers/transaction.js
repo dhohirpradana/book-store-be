@@ -60,7 +60,6 @@ function findTransactionById(req, res) {
 
 function findTransactionSell(req, res) {
   const id = req.user.id;
-  console.log(req.user.id);
   transactionDao
     .findBySeller(id)
     .then((transactions) => {

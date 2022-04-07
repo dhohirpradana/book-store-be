@@ -8,9 +8,9 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(multer().array());
 
 app.use("/api/v1/", require("./src/routes/index"));
+app.use('/uploads', express.static('uploads'));
 
 const API_PORT = process.env.API_PORT;
 const port = API_PORT || 3000;

@@ -10,7 +10,7 @@ const userController = {
   findUsers,
   findUserById,
   updateUser,
-  deleteUserById,
+  deleteUser,
 };
 
 function register(req, res) {
@@ -20,7 +20,6 @@ function register(req, res) {
     name: Joi.string().min(3).required(),
     email: Joi.string().min(3).required().email(),
     password: Joi.string()
-      .min(6)
       .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$"))
       .required(),
   });
@@ -71,6 +70,7 @@ function register(req, res) {
 
 async function login(req, res) {
   const { email, password } = req.body;
+
   const schema = Joi.object({
     email: Joi.string().min(1).required(),
     password: Joi.string().min(1).required(),
@@ -114,13 +114,13 @@ async function login(req, res) {
 }
 
 function me(req, res) {
-  const userId = req.user.id;
-  if (userId)
+  const id = req.user.id;
+  if (!id)
     return res.status(400).send({ error: { message: "Invalid Credentials" } });
   userDao
-    .findById(userId)
+    .findById(id)
     .then((user) => {
-      if (user != 1)
+      if (!user)
         return res.status(404).json({
           error: {
             message: "Not exists!",
@@ -144,7 +144,7 @@ function findUserById(req, res) {
   userDao
     .findById(id)
     .then((user) => {
-      if (user != 1)
+      if (!user)
         return res.status(404).json({
           error: {
             message: "Not exists!",
@@ -163,7 +163,7 @@ function findUserById(req, res) {
 
 // Admin
 
-function deleteUserById(req, res) {
+function deleteUser(req, res) {
   const id = req.params.id;
   userDao
     .deleteById(id)
@@ -186,11 +186,26 @@ function deleteUserById(req, res) {
 }
 
 function updateUser(req, res) {
-  const id = req.params.id;
+  const id = req.user.id;
+
+  const schema = Joi.object({
+    name: Joi.string().min(3),
+    email: Joi.string().min(3).email(),
+    password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9]{6,30}$")),
+  });
+
+  const { error } = schema.validate(req.body);
+
+  if (error)
+    return res
+      .status(400)
+      .send({ error: { message: error.details[0].message } });
+
   userDao
     .update(req.body, id)
     .then((user) => {
-      if (user != 1)
+      console.log(user);
+      if (!user)
         return res.status(404).json({
           error: {
             message: "Not exists!",

@@ -48,6 +48,7 @@ function findProductById(req, res) {
 
 function createProduct(req, res) {
   let product = req.body;
+  product.image = req.file.filename;
 
   const schema = Joi.object({
     name: Joi.string().min(3).required(),

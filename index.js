@@ -1,18 +1,17 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 require("dotenv").config();
+const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 const db = require("./models");
 const app = express();
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use("/api/v1/", require("./src/routes/index"));
-app.use('/uploads', express.static('uploads'));
+app.use("/api/v1/", urlencodedParser, require("./src/routes/index"));
+app.use("/uploads", express.static("uploads"));
 
-const API_PORT = process.env.API_PORT;
-const port = API_PORT || 3000;
+const port = process.env.PORT || 3000;
 
 db.sequelize
   .sync()

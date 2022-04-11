@@ -4,6 +4,8 @@ const userController = require("../controllers/user");
 const productController = require("../controllers/product");
 const categoryController = require("../controllers/category");
 const transactionController = require("../controllers/transaction");
+const rajaOngkirController = require("../controllers/rajaongkir");
+const addressController = require("../controllers/address");
 const { verifyAdmin, verifyUser } = require("../middlewares/auth");
 const { uploadFile } = require("../middlewares/uploadFile");
 
@@ -12,9 +14,6 @@ router.post("/register", userController.register);
 router.post("/login", userController.login);
 router.get("/me", verifyUser, userController.me);
 router.get("/user/:id", verifyUser, userController.findUserById);
-// router.patch("/me", verifyUser, userController.meUpdate);
-// router.delete("/me", verifyUser, userController.meDelete);
-
 router.patch("/user", verifyUser, userController.updateUser);
 router.delete("/user/:id", verifyAdmin, userController.deleteUser);
 router.get("/users", verifyAdmin, userController.findUsers);
@@ -37,6 +36,18 @@ router.get("/category/:id", categoryController.findCategoryById);
 router.post("/category", verifyUser, categoryController.createCategory);
 router.patch("/category/:id", verifyAdmin, categoryController.updateCategory);
 router.delete("/category/:id", verifyAdmin, categoryController.deleteCategory);
+
+//! Address
+router.get("/addresses", verifyUser, addressController.findAddressesByUser);
+router.get("/shipping-address", verifyUser, addressController.findShippingAddressesByUser);
+router.post("/address", verifyUser, addressController.createAddress);
+router.get("/address/:id", verifyUser, addressController.findAddressById);
+router.delete("/address/:id", verifyUser, addressController.deleteAddress);
+
+//! Raja Ongkir
+router.get("/province", rajaOngkirController.getProvince);
+router.get("/city/:province", rajaOngkirController.getAllCityInProvince);
+router.get("/cost/:courier", rajaOngkirController.getCost);
 
 //! Transaction
 router.post(

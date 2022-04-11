@@ -1,4 +1,6 @@
 const productDao = require("../daos/product");
+const userDao = require("../daos/user");
+const addressDao = require("../daos/address");
 const Joi = require("joi");
 
 const productController = {
@@ -13,9 +15,14 @@ function findProducts(req, res) {
   productDao
     .findAll()
     .then((products) => {
+      const uploadURL = process.env.UPLOADS;
+      products = products.map((obj) => {
+        const image = uploadURL + obj.image;
+        return { ...obj.dataValues, image };
+      });
       res.send({
         status: "success",
-        data: { products },
+        data: { products: products },
       });
     })
     .catch((error) => {
@@ -35,11 +42,42 @@ function findProductById(req, res) {
             "object id": id,
           },
         });
-      delete product.dataValues.idUser;
-      res.send({
-        status: "success",
-        data: { product },
-      });
+      userDao
+        .findById(product.idUser)
+        .then((user) => {
+          if (!user || !user.profiles[0])
+            return res.status(404).json({
+              error: {
+                message: "Not exists!",
+                "object id": product.idUser,
+              },
+            });
+          addressDao
+            .findById(user.profiles[0].idShippingAddress)
+            .then((address) => {
+              if (!address)
+                return res.status(404).json({
+                  error: {
+                    message: "Product Address Not exists!",
+                    "object id": user.profiles[0].idShippingAddress,
+                  },
+                });
+              delete product.dataValues.idUser;
+              product.dataValues.address = address;
+              product.dataValues.image =
+                process.env.UPLOADS + product.dataValues.image;
+              res.send({
+                status: "success",
+                data: { product },
+              });
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     })
     .catch((error) => {
       console.log(error);
@@ -75,9 +113,6 @@ function createProduct(req, res) {
         email: req.user.email,
         image: "user_" + req.user.id + ".jpg",
       };
-      delete product.dataValues.idUser;
-      delete product.dataValues.updatedAt;
-      delete product.dataValues.createdAt;
       res.status(201).send({
         status: "success",
         data: { product },

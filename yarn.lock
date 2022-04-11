@@ -1625,6 +1625,11 @@ qs@6.9.7:
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.9.7.tgz#4610846871485e1e048f44ae3b94033f0e675afe"
   integrity sha512-IhMFgUmuNpyRfxA90umL7ByLlgRXu6tIfKPpF5TmcfRLlLCckfP/g3IQmju6jjpu+Hh8rA+2p6A27ZSPOOHdKw==
 
+rajaongkir-node-js@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/rajaongkir-node-js/-/rajaongkir-node-js-2.0.1.tgz#d7a7630a31a674f234d8da795ef2ced5b14f3cb1"
+  integrity sha512-M9+bCoQzl4/imSPBALbUwuVw9g7MCxwVy0enJr0vb8d1vWJ6N/BLvhQhbWk5IyA48SuBQ3iCdXjBmOOx5Q/vnQ==
+
 range-parser@~1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/range-parser/-/range-parser-1.2.1.tgz#3cf37023d199e1c24d1a55b84800c2f3e6468031"

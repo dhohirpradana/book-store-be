@@ -14,13 +14,19 @@ module.exports = (sequelize, DataTypes) => {
           name: "idUser",
         },
       });
+
+      Profile.belongsTo(models.Gender, {
+        as: "gender",
+        foreignKey: { name: "idGender" },
+      });
     }
   }
   Profile.init(
     {
       phone: DataTypes.STRING,
-      gender: DataTypes.STRING,
+      idGender: DataTypes.STRING,
       idUser: DataTypes.INTEGER,
+      idShippingAddress: DataTypes.INTEGER,
     },
     {
       sequelize,

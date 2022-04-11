@@ -68,7 +68,7 @@ function register(req, res) {
   });
 }
 
-async function login(req, res) {
+function login(req, res) {
   const { email, password } = req.body;
 
   const schema = Joi.object({
@@ -95,14 +95,11 @@ async function login(req, res) {
           }
         );
         delete user.dataValues.password;
-        user.token = token;
+        user.dataValues.token = token;
         return res.status(200).json({
           status: "success",
           data: {
-            user: {
-              user,
-              token,
-            },
+            user
           },
         });
       }
@@ -115,8 +112,6 @@ async function login(req, res) {
 
 function me(req, res) {
   const id = req.user.id;
-  if (!id)
-    return res.status(400).send({ error: { message: "Invalid Credentials" } });
   userDao
     .findById(id)
     .then((user) => {
@@ -154,30 +149,6 @@ function findUserById(req, res) {
       res.send({
         status: "success",
         data: { user },
-      });
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-}
-
-// Admin
-
-function deleteUser(req, res) {
-  const id = req.params.id;
-  userDao
-    .deleteById(id)
-    .then((user) => {
-      if (user != 1)
-        return res.status(404).json({
-          error: {
-            message: "Not exists!",
-            "object id": id,
-          },
-        });
-      res.status(200).json({
-        message: "User deleted successfully",
-        data: { "object id": id },
       });
     })
     .catch((error) => {
@@ -229,6 +200,28 @@ function findUsers(req, res) {
       res.send({
         status: "success",
         data: { users },
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
+
+function deleteUser(req, res) {
+  const id = req.params.id;
+  userDao
+    .deleteById(id)
+    .then((user) => {
+      if (user != 1)
+        return res.status(404).json({
+          error: {
+            message: "Not exists!",
+            "object id": id,
+          },
+        });
+      res.status(200).json({
+        message: "User deleted successfully",
+        data: { "object id": id },
       });
     })
     .catch((error) => {

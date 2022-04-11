@@ -1,4 +1,4 @@
-const { User, Role } = require("../../models");
+const { User, Role, Profile } = require("../../models");
 const userDao = {
   findAll,
   findEmail,
@@ -36,11 +36,18 @@ async function findById(id) {
     attributes: {
       exclude: ["idRole", "password", "createdAt", "updatedAt"],
     },
-    include: {
-      model: Role,
-      as: "role",
-      attributes: { exclude: ["createdAt", "updatedAt"] },
-    },
+    include: [
+      {
+        model: Role,
+        as: "role",
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+      },
+      {
+        model: Profile,
+        as: "profiles",
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+      },
+    ],
   });
 }
 

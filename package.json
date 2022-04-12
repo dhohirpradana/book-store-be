@@ -1,29 +1,31 @@
 {
-  "name": "backend",
+  "name": "integration",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npx nodemon"
+    "start": "npx nodemon",
+    "client": "npm start --prefix ../dumbmerch",
+    "dev": "concurrently \"npm start\" \"npm run client\""
   },
-  "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.0.1",
-    "body-parser": "^1.20.0",
+    "concurrently": "^7.1.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.0.0",
-    "express": "^4.17.3",
-    "joi": "^17.6.0",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "joi": "^17.4.1",
     "jsonwebtoken": "^8.5.1",
-    "multer": "^1.4.4",
-    "mysql2": "^2.3.3",
-    "rajaongkir-node-js": "^2.0.1",
-    "sequelize": "^6.18.0",
-    "sequelize-cli": "^6.4.1"
+    "multer": "^1.4.2",
+    "mysql2": "^2.2.5",
+    "pg": "^8.7.3",
+    "sequelize": "^6.6.4",
+    "sequelize-cli": "^6.2.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.15"
-  }
+    "nodemon": "^2.0.9"
+  },
+  "private": true
 }

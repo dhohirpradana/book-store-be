@@ -1,11 +1,13 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 require("dotenv").config();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 const db = require("./models");
 const app = express();
 
+app.use(cors());
 app.use(bodyParser.json());
 
 app.use("/api/v1/", urlencodedParser, require("./src/routes/index"));

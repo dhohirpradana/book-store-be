@@ -14,7 +14,7 @@ router.post("/register", userController.register);
 router.post("/login", userController.login);
 router.get("/me", verifyUser, userController.me);
 router.get("/user/:id", verifyUser, userController.findUserById);
-router.patch("/user", verifyUser, userController.updateUser);
+router.put("/user", verifyUser, userController.updateUser);
 router.delete("/user/:id", verifyAdmin, userController.deleteUser);
 router.get("/users", verifyAdmin, userController.findUsers);
 
@@ -27,14 +27,14 @@ router.post(
   uploadFile("image"),
   productController.createProduct
 );
-router.patch("/product/:id", verifyUser, productController.updateProduct);
+router.put("/product/:id", verifyUser, productController.updateProduct);
 router.delete("/product/:id", verifyUser, productController.deleteProduct);
 
 //! Category
 router.get("/categories", categoryController.findCategories);
 router.get("/category/:id", categoryController.findCategoryById);
 router.post("/category", verifyUser, categoryController.createCategory);
-router.patch("/category/:id", verifyAdmin, categoryController.updateCategory);
+router.put("/category/:id", verifyAdmin, categoryController.updateCategory);
 router.delete("/category/:id", verifyAdmin, categoryController.deleteCategory);
 
 //! Address

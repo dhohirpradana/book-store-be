@@ -28,7 +28,7 @@ function register(req, res) {
 
   if (error)
     return res
-      .status(400)
+      .status(422)
       .send({ error: { message: error.details[0].message } });
 
   userDao.findEmail(user.email).then(async (isExistsEmail) => {
@@ -59,7 +59,7 @@ function register(req, res) {
         );
         res.status(201).json({
           status: "success",
-          data: { user: { name: user.name, email: user.email, token } },
+          data: { name: user.name, email: user.email, token },
         });
       })
       .catch((error) => {
@@ -99,11 +99,11 @@ function login(req, res) {
         return res.status(200).json({
           status: "success",
           data: {
-            user
+            ...user.dataValues,
           },
         });
       }
-      res.status(400).send({ error: { message: "Invalid Credentials" } });
+      res.status(401).send({ error: { message: "Invalid Credentials" } });
     })
     .catch((error) => {
       console.log(error);

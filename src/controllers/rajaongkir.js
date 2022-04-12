@@ -14,7 +14,7 @@ function getProvince(req, res) {
 }
 
 function getAllCityInProvince(req, res) {
-  let provinceId = req.params.provinceId;
+  let provinceId = req.params.province;
   request.get(`/city?&province=${provinceId}`).then((city) => {
     return res.send(city);
   });

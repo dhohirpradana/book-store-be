@@ -126,6 +126,7 @@ function createProduct(req, res) {
 function updateProduct(req, res) {
   const id = req.params.id;
   const product = req.body;
+  product.image = req.file.filename;
 
   const schema = Joi.object({
     name: Joi.string().min(3),

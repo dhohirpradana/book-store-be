@@ -40,8 +40,10 @@ module.exports = (sequelize, DataTypes) => {
       idProduct: DataTypes.INTEGER,
       idBuyer: DataTypes.INTEGER,
       idSeller: DataTypes.INTEGER,
+      qty: DataTypes.INTEGER,
       price: DataTypes.BIGINT,
       idStatus: DataTypes.INTEGER,
+      paymentStatus: DataTypes.TEXT,
     },
     {
       sequelize,

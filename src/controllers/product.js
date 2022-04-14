@@ -62,7 +62,6 @@ function findProductById(req, res) {
                     "object id": user.profiles[0].idShippingAddress,
                   },
                 });
-              delete product.dataValues.idUser;
               product.dataValues.address = address;
               product.dataValues.image =
                 process.env.UPLOADS + product.dataValues.image;

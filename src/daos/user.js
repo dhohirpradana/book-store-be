@@ -1,6 +1,8 @@
 const { User, Role, Profile, Gender } = require("../../models");
 const userDao = {
   findAll,
+  findAllAdmin,
+  findAllCustomer,
   findEmail,
   create,
   findById,
@@ -15,6 +17,62 @@ async function findAll() {
       model: Role,
       as: "role",
       attributes: { exclude: ["createdAt", "updatedAt"] },
+    },
+  });
+}
+
+async function findAllAdmin() {
+  return await User.findAll({
+    attributes: { exclude: ["idRole", "password", "createdAt", "updatedAt"] },
+    include: [
+      {
+        model: Role,
+        as: "role",
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+      },
+      {
+        model: Profile,
+        as: "profiles",
+        include: [
+          {
+            model: Gender,
+            as: "gender",
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+          },
+        ],
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+      },
+    ],
+    where: {
+      idRole: 4,
+    },
+  });
+}
+
+async function findAllCustomer() {
+  return await User.findAll({
+    attributes: { exclude: ["idRole", "password", "createdAt", "updatedAt"] },
+    include: [
+      {
+        model: Role,
+        as: "role",
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+      },
+      {
+        model: Profile,
+        as: "profiles",
+        include: [
+          {
+            model: Gender,
+            as: "gender",
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+          },
+        ],
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+      },
+    ],
+    where: {
+      idRole: 1,
     },
   });
 }

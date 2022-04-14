@@ -76,5 +76,6 @@ router.get(
 );
 router.get("/sales", verifyUser, transactionController.findTransactionSell);
 router.get("/purchases", verifyUser, transactionController.findTransactionBuy);
+router.post("/notification", transactionController.notification);
 
 module.exports = router;

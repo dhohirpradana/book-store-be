@@ -7,6 +7,7 @@
     "port": 3306,
     "dialect": "mysql"
   },
+  
   "production": {
     "username": "AGmM2fBFEC",
     "password": "2PbadY9hmV",

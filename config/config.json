@@ -1,11 +1,4 @@
 {
-  "test": {
-    "username": "root",
-    "password": null,
-    "database": "dumbmerch",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
-  },
   "development": {
     "username": "AGmM2fBFEC",
     "password": "2PbadY9hmV",

@@ -202,6 +202,9 @@ function createTransaction(req, res) {
     idSeller: Joi.number().min(1).required(),
     qty: Joi.number().min(1),
     price: Joi.number().min(1).required(),
+    courier: Joi.min(1).required(),
+    costCourier: Joi.number().min(1).required(),
+    total: Joi.number().min(1).required(),
   });
 
   const { error } = schema.validate(transaction);

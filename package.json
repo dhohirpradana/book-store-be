@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npx nodemon",
+    "start": "node index.js",
     "client": "npm start --prefix ../dumbmerch",
     "dev": "concurrently \"npm start\" \"npm run client\""
   },

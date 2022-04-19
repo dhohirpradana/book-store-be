@@ -45,8 +45,8 @@ async function notification(req, res) {
       }
     } else if (transactionStatus == "settlement") {
       updateProduct(orderId);
-      transactionDao.update({ paymentStatus: "success" }, orderId);
-      sendEmail("pending", orderId);
+      transactionDao.update({ paymentStatus: "settlement" }, orderId);
+      sendEmail("settlement", orderId);
       res.status(200);
     } else if (
       transactionStatus == "cancel" ||
@@ -202,7 +202,7 @@ function createTransaction(req, res) {
     idSeller: Joi.number().min(1).required(),
     qty: Joi.number().min(1),
     price: Joi.number().min(1).required(),
-    courier: Joi.min(1).required(),
+    courier: Joi.string().min(1).required(),
     costCourier: Joi.number().min(1).required(),
     total: Joi.number().min(1).required(),
   });

@@ -1,5 +1,5 @@
 const transactionDao = require("../daos/transaction");
-const productDao = require("../daos/product");
+const productDao = require("../daos/book");
 const userDao = require("../daos/user");
 const Joi = require("joi");
 const midtransClient = require("midtrans-client");

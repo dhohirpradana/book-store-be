@@ -1,9 +1,4 @@
-const {
-  Transaction,
-  TransactionStatus,
-  User,
-  Product,
-} = require("../../models");
+const { Transaction, User, Book } = require("../../models");
 
 const transactionDao = {
   create,
@@ -17,32 +12,27 @@ const transactionDao = {
 async function findAll() {
   return await Transaction.findAll({
     attributes: {
-      exclude: ["idProduct", "idSeller", "idBuyer", "idStatus"],
+      exclude: ["bookId", "sellerId", "buyerId", "idStatus"],
     },
     include: [
       {
-        model: Product,
-        as: "product",
-        attributes: { exclude: ["price", "idUser", "createdAt", "updatedAt"] },
+        model: Book,
+        as: "book",
+        attributes: { exclude: ["price", "userId", "createdAt", "updatedAt"] },
       },
       {
         model: User,
         as: "seller",
         attributes: {
-          exclude: ["password", "idRole", "createdAt", "updatedAt"],
+          exclude: ["password", "role", "createdAt", "updatedAt"],
         },
       },
       {
         model: User,
         as: "buyer",
         attributes: {
-          exclude: ["password", "idRole", "createdAt", "updatedAt"],
+          exclude: ["password", "role", "createdAt", "updatedAt"],
         },
-      },
-      {
-        model: TransactionStatus,
-        as: "status",
-        attributes: { exclude: ["createdAt", "updatedAt"] },
       },
     ],
   });
@@ -52,22 +42,49 @@ async function findById(id) {
   return await Transaction.findByPk(id, {
     include: [
       {
-        model: Product,
-        as: "product",
-        attributes: { exclude: ["price", "idUser", "createdAt", "updatedAt"] },
+        model: Book,
+        as: "book",
+        attributes: { exclude: ["price", "userId", "createdAt", "updatedAt"] },
       },
       {
         model: User,
         as: "seller",
         attributes: {
-          exclude: ["password", "idRole", "createdAt", "updatedAt"],
+          exclude: ["password", "role", "createdAt", "updatedAt"],
         },
       },
       {
         model: User,
         as: "buyer",
         attributes: {
-          exclude: ["password", "idRole", "createdAt", "updatedAt"],
+          exclude: ["password", "role", "createdAt", "updatedAt"],
+        },
+      },
+    ],
+  });
+}
+
+async function findBySeller(sellerId) {
+  return await Transaction.findAll({
+    where: { sellerId: sellerId },
+    include: [
+      {
+        model: Book,
+        as: "book",
+        attributes: { exclude: ["price", "userId", "createdAt", "updatedAt"] },
+      },
+      {
+        model: User,
+        as: "seller",
+        attributes: {
+          exclude: ["password", "role", "createdAt", "updatedAt"],
+        },
+      },
+      {
+        model: User,
+        as: "buyer",
+        attributes: {
+          exclude: ["password", "role", "createdAt", "updatedAt"],
         },
       },
       {
@@ -79,59 +96,27 @@ async function findById(id) {
   });
 }
 
-async function findBySeller(idSeller) {
+async function findByBuyer(buyerId) {
   return await Transaction.findAll({
-    where: { idSeller: idSeller },
+    where: { buyerId: buyerId },
     include: [
       {
-        model: Product,
-        as: "product",
-        attributes: { exclude: ["price", "idUser", "createdAt", "updatedAt"] },
+        model: Book,
+        as: "book",
+        attributes: { exclude: ["price", "userId", "createdAt", "updatedAt"] },
       },
       {
         model: User,
         as: "seller",
         attributes: {
-          exclude: ["password", "idRole", "createdAt", "updatedAt"],
+          exclude: ["password", "role", "createdAt", "updatedAt"],
         },
       },
       {
         model: User,
         as: "buyer",
         attributes: {
-          exclude: ["password", "idRole", "createdAt", "updatedAt"],
-        },
-      },
-      {
-        model: TransactionStatus,
-        as: "status",
-        attributes: { exclude: ["createdAt", "updatedAt"] },
-      },
-    ],
-  });
-}
-
-async function findByBuyer(idBuyer) {
-  return await Transaction.findAll({
-    where: { idBuyer: idBuyer },
-    include: [
-      {
-        model: Product,
-        as: "product",
-        attributes: { exclude: ["price", "idUser", "createdAt", "updatedAt"] },
-      },
-      {
-        model: User,
-        as: "seller",
-        attributes: {
-          exclude: ["password", "idRole", "createdAt", "updatedAt"],
-        },
-      },
-      {
-        model: User,
-        as: "buyer",
-        attributes: {
-          exclude: ["password", "idRole", "createdAt", "updatedAt"],
+          exclude: ["password", "role", "createdAt", "updatedAt"],
         },
       },
       {

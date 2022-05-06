@@ -1,10 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/user");
-const productController = require("../controllers/product");
+const bookController = require("../controllers/book");
 const categoryController = require("../controllers/category");
 const transactionController = require("../controllers/transaction");
 const rajaOngkirController = require("../controllers/rajaongkir");
+const provinceController = require("../controllers/province");
+const cityController = require("../controllers/city");
+const subDistrictController = require("../controllers/subdistrict");
 const addressController = require("../controllers/address");
 const { verifyAdmin, verifyUser } = require("../middlewares/auth");
 const { uploadFile } = require("../middlewares/uploadFile");
@@ -18,22 +21,22 @@ router.patch("/user", verifyUser, userController.updateUser);
 router.delete("/user/:id", verifyAdmin, userController.deleteUser);
 router.get("/users", userController.findUsers);
 
-//! Product
-router.get("/products", productController.findProducts);
-router.get("/product/:id", productController.findProductById);
+//! Book
+router.get("/books", bookController.findBooks);
+router.get("/book/:id", bookController.findBookById);
 router.post(
-  "/product",
+  "/book",
   verifyUser,
   uploadFile("image"),
-  productController.createProduct
+  bookController.createBook
 );
 router.patch(
-  "/product/:id",
+  "/book/:id",
   verifyUser,
   uploadFile("image"),
-  productController.updateProduct
+  bookController.updateBook
 );
-router.delete("/product/:id", verifyUser, productController.deleteProduct);
+router.delete("/book/:id", verifyUser, bookController.deleteBook);
 
 //! Category
 router.get("/categories", categoryController.findCategories);
@@ -43,20 +46,21 @@ router.patch("/category/:id", verifyAdmin, categoryController.updateCategory);
 router.delete("/category/:id", verifyAdmin, categoryController.deleteCategory);
 
 //! Address
-router.get("/addresses", verifyUser, addressController.findAddressesByUser);
-router.get(
-  "/shipping-address",
-  verifyUser,
-  addressController.findShippingAddressesByUser
-);
+router.get("/address", verifyUser, addressController.findAddressesByUser);
 router.post("/address", verifyUser, addressController.createAddress);
 router.get("/address/:id", verifyUser, addressController.findAddressById);
 router.delete("/address/:id", verifyUser, addressController.deleteAddress);
 
 //! Raja Ongkir
-router.get("/province", rajaOngkirController.getProvince);
-router.get("/city/:province", rajaOngkirController.getAllCityInProvince);
 router.get("/cost/:courier", rajaOngkirController.getCost);
+
+//! Province & city & subdistricts
+router.get("/provinces", provinceController.findProvinces);
+router.get("/province/:provinceId/cities", cityController.findCities);
+router.get(
+  "/city/:cityId/subdistricts",
+  subDistrictController.findSubdistricts
+);
 
 //! Transaction
 router.post(

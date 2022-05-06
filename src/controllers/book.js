@@ -1,28 +1,28 @@
-const productDao = require("../daos/product");
+const bookDao = require("../daos/book");
 const userDao = require("../daos/user");
 const addressDao = require("../daos/address");
 const Joi = require("joi");
 
-const productController = {
-  findProducts,
-  findProductById,
-  createProduct,
-  updateProduct,
-  deleteProduct,
+const booksController = {
+  findBooks,
+  findBookById,
+  createBook,
+  updateBook,
+  deleteBook,
 };
 
-function findProducts(req, res) {
-  productDao
+function findBooks(req, res) {
+  bookDao
     .findAll()
-    .then((products) => {
+    .then((books) => {
       const uploadURL = process.env.UPLOADS;
-      products = products.map((obj) => {
-        const image = uploadURL + obj.image;
+      books = books.map((obj) => {
+        const image = !obj.image ? null : uploadURL + obj.image;
         return { ...obj.dataValues, image };
       });
       res.send({
         status: "success",
-        data: { products: products },
+        data: { books: books },
       });
     })
     .catch((error) => {
@@ -30,12 +30,12 @@ function findProducts(req, res) {
     });
 }
 
-function findProductById(req, res) {
+function findBookById(req, res) {
   const id = req.params.id;
-  productDao
+  bookDao
     .findById(id)
-    .then((product) => {
-      if (!product)
+    .then((books) => {
+      if (!books)
         return res.status(404).json({
           error: {
             message: "Not exists!",
@@ -43,31 +43,32 @@ function findProductById(req, res) {
           },
         });
       userDao
-        .findById(product.idUser)
+        .findById(books.userId)
         .then((user) => {
-          if (!user || !user.profiles[0])
+          if (!user)
             return res.status(404).json({
               error: {
                 message: "Not exists!",
-                "object id": product.idUser,
+                "object id": books.userId,
               },
             });
           addressDao
-            .findById(user.profiles[0].idShippingAddress)
+            .findById(user.address.id)
             .then((address) => {
               if (!address)
                 return res.status(404).json({
                   error: {
-                    message: "Product Address Not exists!",
-                    "object id": user.profiles[0].idShippingAddress,
+                    message: "Book Address Not exists!",
+                    "object id": user.addressId,
                   },
                 });
-              product.dataValues.address = address;
-              product.dataValues.image =
-                process.env.UPLOADS + product.dataValues.image;
+              books.dataValues.address = address;
+              books.dataValues.image = !books.image
+                ? null
+                : process.env.UPLOADS + books.dataValues.image;
               res.send({
                 status: "success",
-                data: { product },
+                data: { books },
               });
             })
             .catch((error) => {
@@ -83,9 +84,9 @@ function findProductById(req, res) {
     });
 }
 
-function createProduct(req, res) {
-  let product = req.body;
-  product.image = req.file.filename;
+function createBook(req, res) {
+  let books = req.body;
+  books.image = req.file.filename;
 
   const schema = Joi.object({
     name: Joi.string().min(3).required(),
@@ -95,18 +96,18 @@ function createProduct(req, res) {
     qty: Joi.number().min(1).required(),
   });
 
-  const { error } = schema.validate(product);
-  product.idUser = req.user.id;
+  const { error } = schema.validate(books);
+  books.idUser = req.user.id;
 
   if (error)
     return res
       .status(400)
       .send({ error: { message: error.details[0].message } });
 
-  productDao
-    .create(product)
-    .then((product) => {
-      product.dataValues.user = {
+  bookDao
+    .create(books)
+    .then((books) => {
+      books.dataValues.user = {
         id: req.user.id,
         name: req.user.name,
         email: req.user.email,
@@ -114,7 +115,7 @@ function createProduct(req, res) {
       };
       res.status(201).send({
         status: "success",
-        data: { product },
+        data: { books },
       });
     })
     .catch((error) => {
@@ -122,10 +123,10 @@ function createProduct(req, res) {
     });
 }
 
-function updateProduct(req, res) {
+function updateBook(req, res) {
   const id = req.params.id;
-  const product = req.body;
-  product.image = req.file.filename;
+  const books = req.body;
+  books.image = req.file.filename;
 
   const schema = Joi.object({
     name: Joi.string().min(3),
@@ -135,40 +136,40 @@ function updateProduct(req, res) {
     qty: Joi.number().min(1),
   });
 
-  const { error } = schema.validate(product);
+  const { error } = schema.validate(books);
 
   if (error)
     return res
       .status(400)
       .send({ error: { message: error.details[0].message } });
 
-  productDao
+  bookDao
     .findById(id)
-    .then((product) => {
-      if (!product)
+    .then((books) => {
+      if (!books)
         return res.status(404).json({
           error: {
             message: "Not exists!",
             "object id": id,
           },
         });
-      if (req.user.id != product.idUser)
+      if (req.user.id != books.idUser)
         return res.status(403).json({
           error: {
             message: "Forbidden!",
           },
         });
 
-      delete product.dataValues.idUser;
+      delete books.dataValues.idUser;
       for (const [key, value] of Object.entries(req.body)) {
-        product.dataValues[key] = value;
+        books.dataValues[key] = value;
       }
-      productDao
+      bookDao
         .update(req.body, id)
         .then(() => {
           res.status(200).json({
-            message: "Product updated successfully",
-            data: { product },
+            message: "Book updated successfully",
+            data: { books },
           });
         })
         .catch((error) => {
@@ -180,31 +181,31 @@ function updateProduct(req, res) {
     });
 }
 
-function deleteProduct(req, res) {
+function deleteBook(req, res) {
   const id = req.params.id;
-  productDao
+  bookDao
     .findById(id)
-    .then((product) => {
-      if (!product)
+    .then((books) => {
+      if (!books)
         return res.status(404).json({
           error: {
             message: "Not exists!",
             "object id": id,
           },
         });
-      if (req.user.id != product.idUser)
+      if (req.user.id != books.idUser)
         return res.status(403).json({
           error: {
             message: "Forbidden!",
           },
         });
 
-      productDao
+      bookDao
         .deleteById(id)
-        .then((product) => {
+        .then((books) => {
           res.status(200).json({
-            message: "Product deleted successfully",
-            data: { product },
+            message: "Book deleted successfully",
+            data: { books },
           });
         })
         .catch((error) => {
@@ -216,4 +217,4 @@ function deleteProduct(req, res) {
     });
 }
 
-module.exports = productController;
+module.exports = booksController;

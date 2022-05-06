@@ -15,7 +15,7 @@ function findAddressesByUser(req, res) {
   userDao
     .findById(id)
     .then((user) => {
-      if (!user || !user.profiles[0])
+      if (!user)
         return res.status(404).json({
           error: {
             message: "Not exists!",
@@ -24,11 +24,11 @@ function findAddressesByUser(req, res) {
         });
 
       addressDao
-        .findByProfile(user.profiles[0].id)
-        .then((addresses) => {
+        .findByUser(user.id)
+        .then((address) => {
           res.send({
             status: "success",
-            data: { addresses },
+            data: { address },
           });
         })
         .catch((error) => {
@@ -101,9 +101,11 @@ function findAddressById(req, res) {
 
 function createAddress(req, res) {
   let address = req.body;
+  const id = req.user.id;
 
   const schema = Joi.object({
-    name: Joi.string().min(3).required(),
+    cityId: Joi.number().min(1).required(),
+    detail: Joi.string().min(3).required(),
   });
 
   const { error } = schema.validate(address);
@@ -113,6 +115,7 @@ function createAddress(req, res) {
       .status(400)
       .send({ error: { message: error.details[0].message } });
 
+  address.userId = id;
   addressDao
     .create(address)
     .then((address) => {

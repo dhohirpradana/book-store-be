@@ -16,7 +16,7 @@ router.get("/me", verifyUser, userController.me);
 router.get("/user/:id", verifyUser, userController.findUserById);
 router.patch("/user", verifyUser, userController.updateUser);
 router.delete("/user/:id", verifyAdmin, userController.deleteUser);
-router.get("/users", verifyAdmin, userController.findUsers);
+router.get("/users", userController.findUsers);
 
 //! Product
 router.get("/products", productController.findProducts);

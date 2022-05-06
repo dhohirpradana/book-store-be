@@ -88,7 +88,7 @@ function login(req, res) {
     .then(async (user) => {
       if (user && (await bcrypt.compare(password, user.password))) {
         const token = jwt.sign(
-          { id: user.id, name: user.name, email, role: user.role.id },
+          { id: user.id, name: user.name, email, role: user.role },
           process.env.TOKEN_KEY,
           {
             expiresIn: "2h",

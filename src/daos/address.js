@@ -1,17 +1,27 @@
-const { Address } = require("../../models");
-const addressDao = { findByProfile, create, findById, deleteById };
+const { Address, City } = require("../../models");
+const addressDao = { findByUser, create, findById, deleteById };
 
-async function findByProfile(idProfile) {
-  return await Address.findAll({
-    where: { idProfile },
-    attributes: { exclude: ["idProfile", "createdAt", "updatedAt"] },
+async function findByUser(userId) {
+  return await Address.findOne({
+    where: { userId },
+    attributes: { exclude: ["userId", "cityId", "createdAt", "updatedAt"] },
+    include: {
+      model: City,
+      as: "city",
+      attributes: { exclude: ["provinceId","createdAt", "updatedAt"] },
+    },
   });
 }
 
 async function findById(id) {
   return await Address.findByPk(id, {
     attributes: {
-      exclude: ["idProfile", "createdAt", "updatedAt"],
+      exclude: ["userId", "cityId", "createdAt", "updatedAt"],
+    },
+    include: {
+      model: City,
+      as: "city",
+      attributes: { exclude: ["provinceId", "createdAt", "updatedAt"] },
     },
   });
 }

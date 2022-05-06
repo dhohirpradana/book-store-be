@@ -8,45 +8,43 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
+      // define association here
       Transaction.belongsTo(models.User, {
         as: "seller",
         foreignKey: {
-          name: "idSeller",
+          name: "sellerId",
         },
       });
 
       Transaction.belongsTo(models.User, {
         as: "buyer",
         foreignKey: {
-          name: "idBuyer",
+          name: "buyerId",
         },
       });
 
-      Transaction.belongsTo(models.Product, {
-        as: "product",
+      Transaction.belongsTo(models.Book, {
+        as: "book",
         foreignKey: {
-          name: "idProduct",
+          name: "bookId",
         },
-      });
-
-      Transaction.belongsTo(models.TransactionStatus, {
-        as: "status",
-        foreignKey: { name: "idStatus" },
       });
     }
   }
   Transaction.init(
     {
-      idProduct: DataTypes.INTEGER,
-      idBuyer: DataTypes.INTEGER,
-      idSeller: DataTypes.INTEGER,
-      qty: DataTypes.INTEGER,
-      price: DataTypes.BIGINT,
-      courier: DataTypes.TEXT,
-      costCourier: DataTypes.BIGINT,
-      total: DataTypes.BIGINT,
-      idStatus: DataTypes.INTEGER,
-      paymentStatus: DataTypes.TEXT,
+      bookId: DataTypes.INTEGER,
+      transactionId: DataTypes.INTEGER,
+      sellerId: DataTypes.INTEGER,
+      buyerId: DataTypes.INTEGER,
+      price: DataTypes.INTEGER,
+      count: DataTypes.INTEGER,
+      discount: DataTypes.INTEGER,
+      origin: DataTypes.INTEGER,
+      destination: DataTypes.INTEGER,
+      courier: DataTypes.STRING,
+      courierCost: DataTypes.INTEGER,
+      subTotal: DataTypes.INTEGER,
     },
     {
       sequelize,

@@ -31,7 +31,7 @@ const io = new Server(server, {
 
 require("./src/socket")(io);
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 db.sequelize
   .sync()

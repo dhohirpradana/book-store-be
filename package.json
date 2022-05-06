@@ -1,11 +1,11 @@
 {
-  "name": "integration",
+  "name": "waysbook",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "client": "npm start --prefix ../dumbmerch",
+    "client": "npm start --prefix ../my-app",
     "dev": "concurrently \"npm start\" \"npm run client\""
   },
   "author": "",
@@ -25,6 +25,7 @@
     "nodemailer": "^6.7.3",
     "pg": "^8.7.3",
     "rajaongkir-node-js": "^2.0.1",
+    "react-scripts": "^5.0.1",
     "rupiah-format": "^1.0.0",
     "sequelize": "^6.6.4",
     "sequelize-cli": "^6.2.0",

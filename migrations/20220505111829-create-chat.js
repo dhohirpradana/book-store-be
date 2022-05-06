@@ -1,28 +1,33 @@
 "use strict";
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("productCategories", {
+    await queryInterface.createTable("Chats", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      idProduct: {
+      senderId: {
         type: Sequelize.INTEGER,
         references: {
-          model: "products",
-          key: "id",
-        },
-      },
-      idCategory: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: "categories",
+          model: "Users",
           key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
+      },
+      recipientId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
+      message: {
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,
@@ -37,6 +42,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("productCategories");
+    await queryInterface.dropTable("Chats");
   },
 };

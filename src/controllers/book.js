@@ -17,7 +17,7 @@ function findBooks(req, res) {
     .then((books) => {
       const uploadURL = process.env.UPLOADS;
       books = books.map((obj) => {
-        const image = !obj.image ? null : uploadURL + obj.image;
+        const image = !obj.image ? null : uploadURL + "image/" + obj.image;
         return { ...obj.dataValues, image };
       });
       res.send({

@@ -15,6 +15,13 @@ function findCartByUser(req, res) {
   cartDao
     .findByUser(id)
     .then((carts) => {
+      carts = carts.map((obj) => {
+        const uploadURL = process.env.UPLOADS;
+        const image = !obj.book.image
+          ? null
+          : uploadURL + "image/" + obj.book.image;
+        return { ...obj.dataValues, book: { ...obj.book.dataValues, image } };
+      });
       res.send({
         status: "success",
         data: { carts: carts },

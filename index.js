@@ -4,6 +4,7 @@ const cors = require("cors");
 require("dotenv").config();
 const { Server } = require("socket.io");
 var http = require("http");
+const urlencodedParser = bodyParser.urlencoded({ extended: true });
 
 const db = require("./models");
 const app = express();
@@ -13,9 +14,11 @@ app.use(
     extended: true,
   })
 );
+
+app.use(bodyParser.json());
 app.use(cors());
 
-app.use("/api/v1/", require("./src/routes/index"));
+app.use("/api/v1/", urlencodedParser, require("./src/routes/index"));
 app.post("/profile");
 app.use("/uploads/image", express.static("uploads/image"));
 app.use("/uploads/document", express.static("uploads/document"));

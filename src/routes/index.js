@@ -9,6 +9,7 @@ const provinceController = require("../controllers/province");
 const cityController = require("../controllers/city");
 const subDistrictController = require("../controllers/subdistrict");
 const addressController = require("../controllers/address");
+const cartController = require("../controllers/cart");
 const { verifyAdmin, verifyUser } = require("../middlewares/auth");
 const { uploadFile } = require("../middlewares/uploadFile");
 
@@ -61,6 +62,10 @@ router.get(
   "/city/:cityId/subdistricts",
   subDistrictController.findSubdistricts
 );
+
+//! Cart
+router.get("/carts", verifyUser, cartController.findCartByUser);
+router.post("/cart", verifyUser, cartController.createCart);
 
 //! Transaction
 router.post(

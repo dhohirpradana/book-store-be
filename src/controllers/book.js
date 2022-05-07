@@ -3,7 +3,7 @@ const userDao = require("../daos/user");
 const addressDao = require("../daos/address");
 const Joi = require("joi");
 
-const booksController = {
+const bookController = {
   findBooks,
   findBookById,
   createBook,
@@ -22,7 +22,7 @@ function findBooks(req, res) {
       });
       res.send({
         status: "success",
-        data: { books: books },
+        data: { books },
       });
     })
     .catch((error) => {
@@ -34,8 +34,8 @@ function findBookById(req, res) {
   const id = req.params.id;
   bookDao
     .findById(id)
-    .then((books) => {
-      if (!books)
+    .then((book) => {
+      if (!book)
         return res.status(404).json({
           error: {
             message: "Not exists!",
@@ -43,13 +43,13 @@ function findBookById(req, res) {
           },
         });
       userDao
-        .findById(books.userId)
+        .findById(book.userId)
         .then((user) => {
           if (!user)
             return res.status(404).json({
               error: {
                 message: "Not exists!",
-                "object id": books.userId,
+                "object id": book.userId,
               },
             });
           addressDao
@@ -62,13 +62,13 @@ function findBookById(req, res) {
                     "object id": user.addressId,
                   },
                 });
-              books.dataValues.address = address;
-              books.dataValues.image = !books.image
+              book.dataValues.address = address;
+              book.dataValues.image = !book.image
                 ? null
-                : process.env.UPLOADS + books.dataValues.image;
+                : process.env.UPLOADS + book.dataValues.image;
               res.send({
                 status: "success",
-                data: { books },
+                data: { book },
               });
             })
             .catch((error) => {
@@ -85,10 +85,10 @@ function findBookById(req, res) {
 }
 
 function createBook(req, res) {
-  let books = req.body;
-  books.image = req.files.image[0].filename;
+  let book = req.body;
+  book.image = req.files.image[0].filename;
   if (req.files.document && req.files.document[0])
-    books.document = req.files.document[0].filename;
+    book.document = req.files.document[0].filename;
 
   const schema = Joi.object({
     title: Joi.string().min(3).required(),
@@ -98,13 +98,13 @@ function createBook(req, res) {
     desc: Joi.string().min(3).required(),
     price: Joi.number().min(3).required(),
     image: Joi.string().required(),
-    document: books.isEbook == 1 ? Joi.string().required() : Joi.string(),
+    document: book.isEbook == 1 ? Joi.string().required() : Joi.string(),
     publicationDate: Joi.string().min(4).required(),
     qty: Joi.number().min(1).required(),
   });
 
-  const { error } = schema.validate(books);
-  books.userId = req.user.id;
+  const { error } = schema.validate(book);
+  book.userId = req.user.id;
 
   if (error)
     return res
@@ -112,9 +112,9 @@ function createBook(req, res) {
       .send({ error: { message: error.details[0].message } });
 
   bookDao
-    .create(books)
-    .then((books) => {
-      //   books.dataValues.user = {
+    .create(book)
+    .then((book) => {
+      //   book.dataValues.user = {
       //     id: req.user.id,
       //     name: req.user.name,
       //     email: req.user.email,
@@ -122,7 +122,7 @@ function createBook(req, res) {
       //   };
       res.status(201).send({
         status: "success",
-        data: { books },
+        data: { book },
       });
     })
     .catch((error) => {
@@ -133,10 +133,10 @@ function createBook(req, res) {
 function updateBook(req, res) {
   const id = req.params.id;
 
-  let books = req.body;
-  books.image = req.files.image[0].filename;
+  let book = req.body;
+  book.image = req.files.image[0].filename;
   if (req.files.document && req.files.document[0])
-    books.document = req.files.document[0].filename;
+    book.document = req.files.document[0].filename;
 
   const schema = Joi.object({
     title: Joi.string().min(3),
@@ -146,12 +146,12 @@ function updateBook(req, res) {
     desc: Joi.string().min(3),
     price: Joi.number().min(3),
     image: Joi.string().required(),
-    document: books.isEbook == 1 ? Joi.string() : Joi.string(),
+    document: book.isEbook == 1 ? Joi.string() : Joi.string(),
     publicationDate: Joi.string().min(4),
     qty: Joi.number().min(1),
   });
 
-  const { error } = schema.validate(books);
+  const { error } = schema.validate(book);
 
   if (error)
     return res
@@ -160,31 +160,31 @@ function updateBook(req, res) {
 
   bookDao
     .findById(id)
-    .then((books) => {
-      if (!books)
+    .then((book) => {
+      if (!book)
         return res.status(404).json({
           error: {
             message: "Not exists!",
             "object id": id,
           },
         });
-      if (req.user.id != books.userId)
+      if (req.user.id != book.userId)
         return res.status(403).json({
           error: {
             message: "Forbidden, You not owner!",
           },
         });
 
-      delete books.dataValues.idUser;
+      delete book.dataValues.idUser;
       for (const [key, value] of Object.entries(req.body)) {
-        books.dataValues[key] = value;
+        book.dataValues[key] = value;
       }
       bookDao
         .update(req.body, id)
         .then(() => {
           res.status(200).json({
             message: "Book updated successfully",
-            data: { books },
+            data: { book },
           });
         })
         .catch((error) => {
@@ -200,15 +200,15 @@ function deleteBook(req, res) {
   const id = req.params.id;
   bookDao
     .findById(id)
-    .then((books) => {
-      if (!books)
+    .then((book) => {
+      if (!book)
         return res.status(404).json({
           error: {
             message: "Not exists!",
             "object id": id,
           },
         });
-      if (req.user.id != books.userId)
+      if (req.user.id != book.userId)
         return res.status(403).json({
           error: {
             message: "Forbidden!",
@@ -217,7 +217,7 @@ function deleteBook(req, res) {
 
       bookDao
         .deleteById(id)
-        .then((books) => {
+        .then((book) => {
           res.status(200).json({
             message: "Book deleted successfully",
             "object id": id,
@@ -232,4 +232,4 @@ function deleteBook(req, res) {
     });
 }
 
-module.exports = booksController;
+module.exports = bookController;

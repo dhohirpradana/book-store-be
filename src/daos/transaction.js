@@ -87,11 +87,6 @@ async function findBySeller(sellerId) {
           exclude: ["password", "role", "createdAt", "updatedAt"],
         },
       },
-      {
-        model: TransactionStatus,
-        as: "status",
-        attributes: { exclude: ["createdAt", "updatedAt"] },
-      },
     ],
   });
 }
@@ -118,11 +113,6 @@ async function findByBuyer(buyerId) {
         attributes: {
           exclude: ["password", "role", "createdAt", "updatedAt"],
         },
-      },
-      {
-        model: TransactionStatus,
-        as: "status",
-        attributes: { exclude: ["createdAt", "updatedAt"] },
       },
     ],
   });

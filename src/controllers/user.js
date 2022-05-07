@@ -122,6 +122,14 @@ function me(req, res) {
             "object id": id,
           },
         });
+      const token = jwt.sign(
+        { id: user.id, name: user.name, email: user.email, role: user.role },
+        process.env.TOKEN_KEY,
+        {
+          expiresIn: "2h",
+        }
+      );
+      user.dataValues.token = token;
       res.status(200).json({
         status: "success",
         data: {
@@ -156,12 +164,13 @@ function findUserById(req, res) {
     });
 }
 
-function updateUser(req, res) {
+async function updateUser(req, res) {
   const id = req.user.id;
 
   const schema = Joi.object({
     name: Joi.string().min(3),
     email: Joi.string().min(3).email(),
+    gender: Joi.string(),
     password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9]{6,30}$")),
   });
 
@@ -171,6 +180,9 @@ function updateUser(req, res) {
     return res
       .status(400)
       .send({ error: { message: error.details[0].message } });
+
+  const encryptedPassword = await bcrypt.hash(req.body.password, 10);
+  req.body.password = encryptedPassword;
 
   userDao
     .update(req.body, id)

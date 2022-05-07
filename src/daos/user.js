@@ -53,6 +53,11 @@ async function findEmail(email) {
   return await User.findOne({
     where: { email },
     attributes: { exclude: ["createdAt", "updatedAt"] },
+    include: {
+      model: Address,
+      as: "address",
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    },
   });
 }
 

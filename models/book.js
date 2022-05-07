@@ -30,6 +30,7 @@ module.exports = (sequelize, DataTypes) => {
       qty: DataTypes.INTEGER,
       isEbook: DataTypes.BOOLEAN,
       image: DataTypes.STRING,
+      document: DataTypes.STRING,
     },
     {
       sequelize,

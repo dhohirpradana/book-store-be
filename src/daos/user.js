@@ -1,4 +1,4 @@
-const { User, Address } = require("../../models");
+const { User, Address, Province } = require("../../models");
 const userDao = {
   findAll,
   findAllAdmin,

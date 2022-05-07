@@ -171,6 +171,7 @@ async function updateUser(req, res) {
     name: Joi.string().min(3),
     email: Joi.string().min(3).email(),
     gender: Joi.string(),
+    phone: Joi.string(),
     password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9]{6,30}$")),
   });
 
@@ -181,9 +182,10 @@ async function updateUser(req, res) {
       .status(400)
       .send({ error: { message: error.details[0].message } });
 
-  const encryptedPassword = await bcrypt.hash(req.body.password, 10);
-  req.body.password = encryptedPassword;
-
+  if (req.body.password) {
+    const encryptedPassword = await bcrypt.hash(req.body.password, 10);
+    req.body.password = encryptedPassword;
+  }
   userDao
     .update(req.body, id)
     .then((user) => {

@@ -1,4 +1,4 @@
-const { City } = require("../../models");
+const { City, Province } = require("../../models");
 const provinceDao = { findAll, findByProvinceId, create, findById, deleteById };
 
 async function findAll() {
@@ -19,6 +19,11 @@ async function findByProvinceId(provinceId) {
   return await City.findAll({
     attributes: {
       exclude: ["createdAt", "updatedAt"],
+    },
+    include: {
+      model: Province,
+      as: "province",
+      attributes: { exclude: ["createdAt", "updatedAt"] },
     },
     where: {
       provinceId: provinceId,

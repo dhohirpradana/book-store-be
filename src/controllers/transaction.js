@@ -1,14 +1,15 @@
 const transactionDao = require("../daos/transaction");
-const productDao = require("../daos/book");
+const bookDao = require("../daos/book");
 const userDao = require("../daos/user");
 const Joi = require("joi");
 const midtransClient = require("midtrans-client");
 const core = new midtransClient.CoreApi();
 const nodemailer = require("nodemailer");
 const convertRupiah = require("rupiah-format");
+const { v4: uuidv4 } = require("uuid");
 
 core.apiConfig.set({
-  isProduction: false,
+  isbookion: false,
   serverKey: process.env.MIDTRANS_SERVER_KEY,
   clientKey: process.env.MIDTRANS_CLIENT_KEY,
 });
@@ -26,6 +27,7 @@ async function notification(req, res) {
   try {
     console.log("------- Notification --------- ✅");
     const statusResponse = await core.transaction.notification(req.body);
+    console.log(statusResponse);
 
     const orderId = statusResponse.order_id;
 
@@ -34,18 +36,33 @@ async function notification(req, res) {
 
     if (transactionStatus == "capture") {
       if (fraudStatus == "challenge") {
-        transactionDao.update({ paymentStatus: "pending" }, orderId);
+        transactionDao
+          .update({ status: "challenge" }, orderId)
+          .then((transaction) => {
+            console.log(transaction);
+          })
+          .catch((err) => console.log(err));
         sendEmail("pending", orderId);
         res.status(200);
       } else if (fraudStatus == "accept") {
-        updateProduct(orderId);
-        transactionDao.update({ paymentStatus: "success" }, orderId);
+        updatebook(orderId);
+        transactionDao
+          .update({ status: "success" }, orderId)
+          .then((transaction) => {
+            console.log(transaction);
+          })
+          .catch((err) => console.log(err));
         sendEmail("success", orderId);
         res.status(200);
       }
     } else if (transactionStatus == "settlement") {
-      updateProduct(orderId);
-      transactionDao.update({ paymentStatus: "settlement" }, orderId);
+      updatebook(orderId);
+      transactionDao
+        .update({ status: "settlement" }, orderId)
+        .then((transaction) => {
+          console.log(transaction);
+        })
+        .catch((err) => console.log(err));
       sendEmail("settlement", orderId);
       res.status(200);
     } else if (
@@ -53,11 +70,21 @@ async function notification(req, res) {
       transactionStatus == "deny" ||
       transactionStatus == "expire"
     ) {
-      transactionDao.update({ paymentStatus: "failed" }, orderId);
+      transactionDao
+        .update({ status: "failed" }, orderId)
+        .then((transaction) => {
+          console.log(transaction);
+        })
+        .catch((err) => console.log(err));
       sendEmail("failed", orderId);
       res.status(200);
     } else if (transactionStatus == "pending") {
-      transactionDao.update({ paymentStatus: "pending" }, orderId);
+      transactionDao
+        .update({ status: "pending" }, orderId)
+        .then((transaction) => {
+          console.log(transaction);
+        })
+        .catch((err) => console.log(err));
       sendEmail("pending", orderId);
       res.status(200);
     }
@@ -67,23 +94,23 @@ async function notification(req, res) {
   }
 }
 
-function updateProduct(orderId) {
-  productDao
+function updatebook(orderId) {
+  bookDao
     .findById(orderId)
-    .then((product) => {
-      console.log(product);
-      if (!product)
+    .then((book) => {
+      // console.log(book);
+      if (!book)
         return res.status(404).json({
           error: {
             message: "Not exists!",
             "object id": orderId,
           },
         });
-      const qty = product.qty - 1;
-      productDao
+      const qty = book.qty - 1;
+      bookDao
         .update({ qty }, orderId)
-        .then(() => {
-          res.status(200);
+        .then((book) => {
+          console.log(book);
         })
         .catch((error) => {
           console.log(error);
@@ -122,8 +149,8 @@ function findTransactionById(req, res) {
         });
       if (
         !(
-          transaction.idUser == req.user.id ||
-          transaction.idSeller == req.user.id
+          transaction.buyerId == req.user.id ||
+          transaction.sellerId == req.user.id
         )
       )
         return res.status(404).json({
@@ -172,10 +199,10 @@ function findTransactionBuy(req, res) {
     .then((transactions) => {
       const uploadURL = process.env.UPLOADS;
       transactions = transactions.map((obj) => {
-        const image = uploadURL + obj.product.image;
-        var product = obj.product;
-        product = { ...product.dataValues, image };
-        return { ...obj.dataValues, product };
+        const image = uploadURL + obj.book.image;
+        var book = obj.book;
+        book = { ...book.dataValues, image };
+        return { ...obj.dataValues, book };
       });
       if (!transactions)
         return res.status(404).json({
@@ -198,13 +225,15 @@ function createTransaction(req, res) {
   let transaction = req.body;
 
   const schema = Joi.object({
-    idProduct: Joi.number().min(1).required(),
-    idSeller: Joi.number().min(1).required(),
-    qty: Joi.number().min(1),
+    bookId: Joi.number().min(1).required(),
+    sellerId: Joi.number().min(1).required(),
+    count: Joi.number().min(1),
+    origin: Joi.number().min(1),
+    destination: Joi.number().min(1),
     price: Joi.number().min(1).required(),
     courier: Joi.string().min(1).required(),
-    costCourier: Joi.number().min(1).required(),
-    total: Joi.number().min(1).required(),
+    courierCost: Joi.number().min(1).required(),
+    subTotal: Joi.number().min(1).required(),
   });
 
   const { error } = schema.validate(transaction);
@@ -214,7 +243,9 @@ function createTransaction(req, res) {
       .status(400)
       .send({ error: { message: error.details[0].message } });
 
-  transaction.idBuyer = req.user.id;
+  let transId = uuidv4();
+  transaction.buyerId = req.user.id;
+  transaction.transactionId = transId;
 
   userDao
     .findById(req.user.id)
@@ -225,15 +256,15 @@ function createTransaction(req, res) {
           delete transaction.dataValues.updatedAt;
           delete transaction.dataValues.createdAt;
           let snap = new midtransClient.Snap({
-            isProduction: false,
+            isbookion: false,
             serverKey: process.env.MIDTRANS_SERVER_KEY,
           });
 
           let parameter = {
             transaction_details: {
-              order_id: transaction.id,
-              order_qty: transaction.qty,
-              gross_amount: transaction.price,
+              order_id: transId,
+              order_qty: transaction.count,
+              gross_amount: transaction.subTotal,
             },
             credit_card: {
               secure: true,
@@ -241,7 +272,7 @@ function createTransaction(req, res) {
             customer_details: {
               full_name: user.name,
               email: user.email,
-              phone: user.profiles[0].phone ?? 021000,
+              phone: user.phone ?? 0,
             },
           };
           const payment = await snap.createTransaction(parameter);
@@ -249,8 +280,8 @@ function createTransaction(req, res) {
             status: "pending",
             message: "Pending transaction payment gateway",
             payment,
-            product: {
-              id: transaction.idProduct,
+            book: {
+              id: transaction.bookId,
             },
           });
         })
@@ -299,16 +330,18 @@ const sendEmail = async (status, transactionId) => {
                 </style>
               </head>
               <body>
-                <h2>Product payment :</h2>
+                <h2>book payment :</h2>
                 <ul style="list-style-type:none;">
-                  <li>Name : ${data.product.name}</li>
-                  <li>Total payment: ${convertRupiah.convert(data.price)}</li>
+                  <li>Name : ${data.book.title}</li>
+                  <li>Total payment: ${convertRupiah.convert(
+                    data.subTotal
+                  )}</li>
                   <li>Status : <b>${status}</b></li>
                 </ul>  
               </body>
             </html>`,
       };
-      if (data.paymentStatus != status) {
+      if (data.status != status) {
         transporter.sendMail(mailOptions, (err, info) => {
           if (err) throw err;
           console.log("Email sent: " + info.response);

@@ -124,7 +124,9 @@ async function create(transaction) {
 }
 
 async function update(transaction, id) {
-  return await Transaction.update(transaction, { where: { id } });
+  return await Transaction.update(transaction, {
+    where: { transactionId: id },
+  });
 }
 
 module.exports = transactionDao;

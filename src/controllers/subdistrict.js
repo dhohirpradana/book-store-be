@@ -1,4 +1,4 @@
-const subDistrictDao = require("../daos/subDistrict");
+const subDistrictDao = require("../daos/subdistrict");
 
 const subDistrictController = {
   findSubdistricts,

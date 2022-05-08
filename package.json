@@ -7,14 +7,14 @@
     "build": "react-scripts build",
     "start": "node index.js",
     "client": "npm start --prefix ../my-app",
+    "installSvgo": "npm install svgo",
     "dev": "concurrently \"npm start\" \"npm run client\""
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "svgo": "^2.8.0",
     "bcrypt": "^5.0.1",
-    "cloudinary": "^1.29.1",
-    "concurrently": "^7.1.0",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",

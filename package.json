@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "react-scripts build",
     "start": "node index.js",
     "client": "npm start --prefix ../my-app",
     "dev": "concurrently \"npm start\" \"npm run client\""

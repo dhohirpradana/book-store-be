@@ -51,10 +51,10 @@ const socketIo = (io) => {
       const token = socket.handshake.auth.token;
       userId = jwt.verify(token, tokenKey).id;
       try {
-        const idSender = userId;
-        const idRecipient = payload;
+        const senderId = userId;
+        const recipientId = payload;
 
-        chatDao.findAll(idRecipient, idSender).then((data) => {
+        chatDao.findAll(recipientId, senderId).then((data) => {
           socket.emit("messages", data);
         });
       } catch (error) {
@@ -67,15 +67,15 @@ const socketIo = (io) => {
       userId = jwt.verify(token, tokenKey).id;
       console.log("send message: ", userId);
       try {
-        const idSender = userId;
-        const { idRecipient, message } = payload;
-        console.log(idSender, idRecipient);
+        const senderId = userId;
+        const { recipientId, message } = payload;
+        console.log(senderId, recipientId);
 
-        const data = { idSender, idRecipient, message };
+        const data = { senderId, recipientId, message };
 
         await chatDao.create(data);
 
-        io.to(socket.id).to(connectedUser[idRecipient]).emit("new message");
+        io.to(socket.id).to(connectedUser[recipientId]).emit("new message");
       } catch (error) {
         console.log(error);
       }

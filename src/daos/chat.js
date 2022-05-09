@@ -1,4 +1,4 @@
-const { Chat, Role, Profile, Gender } = require("../../models");
+const { Chat } = require("../../models");
 const { Op } = require("sequelize");
 
 const chatDao = {
@@ -6,15 +6,15 @@ const chatDao = {
   create,
 };
 
-async function findAll(idRecipient, idSender) {
+async function findAll(recipientId, senderId) {
   return await Chat.findAll({
     attributes: { exclude: ["createdAt", "updatedAt"] },
     where: {
-      idRecipient: {
-        [Op.or]: [idRecipient, idSender],
+      recipientId: {
+        [Op.or]: [recipientId, senderId],
       },
-      idSender: {
-        [Op.or]: [idRecipient, idSender],
+      senderId: {
+        [Op.or]: [recipientId, senderId],
       },
     },
     order: [["createdAt", "ASC"]],

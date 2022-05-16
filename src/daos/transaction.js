@@ -12,13 +12,13 @@ const transactionDao = {
 async function findAll() {
   return await Transaction.findAll({
     attributes: {
-      exclude: ["bookId", "sellerId", "buyerId", "idStatus"],
+      exclude: ["bookId", "sellerId", "buyerId"],
     },
     include: [
       {
         model: Book,
         as: "book",
-        attributes: { exclude: ["price", "userId", "createdAt", "updatedAt"] },
+        attributes: { exclude: ["userId", "createdAt", "updatedAt"] },
       },
       {
         model: User,
@@ -44,7 +44,7 @@ async function findById(id) {
       {
         model: Book,
         as: "book",
-        attributes: { exclude: ["price", "userId", "createdAt", "updatedAt"] },
+        attributes: { exclude: ["userId", "createdAt", "updatedAt"] },
       },
       {
         model: User,
@@ -71,7 +71,7 @@ async function findBySeller(sellerId) {
       {
         model: Book,
         as: "book",
-        attributes: { exclude: ["price", "userId", "createdAt", "updatedAt"] },
+        attributes: { exclude: ["userId", "createdAt", "updatedAt"] },
       },
       {
         model: User,
@@ -98,7 +98,7 @@ async function findByBuyer(buyerId) {
       {
         model: Book,
         as: "book",
-        attributes: { exclude: ["price", "userId", "createdAt", "updatedAt"] },
+        attributes: { exclude: ["userId", "createdAt", "updatedAt"] },
       },
       {
         model: User,

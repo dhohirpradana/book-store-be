@@ -6,6 +6,7 @@ const cartDao = {
   findById,
   deleteById,
   update,
+  deleteByUserId,
 };
 
 async function findAll() {
@@ -38,6 +39,10 @@ async function findByUser(userId) {
 
 async function deleteById(id) {
   return await Cart.destroy({ where: { id: id } });
+}
+
+async function deleteByUserId(buyerId) {
+  return await Cart.destroy({ where: { userId: buyerId } });
 }
 
 async function create(cart) {

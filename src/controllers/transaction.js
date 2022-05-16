@@ -6,7 +6,7 @@ const midtransClient = require("midtrans-client");
 const core = new midtransClient.CoreApi();
 const nodemailer = require("nodemailer");
 const convertRupiah = require("rupiah-format");
-const { v4: uuidv4 } = require("uuid");
+// const { v4: uuidv4 } = require("uuid");
 
 core.apiConfig.set({
   isbookion: false,
@@ -228,10 +228,11 @@ function createTransaction(req, res) {
     bookId: Joi.number().min(1).required(),
     sellerId: Joi.number().min(1).required(),
     count: Joi.number().min(1),
-    origin: Joi.number().min(1),
-    destination: Joi.number().min(1),
+    origin: Joi.number().min(1).required(),
+    destination: Joi.number().min(1).required(),
     price: Joi.number().min(1).required(),
     courier: Joi.string().min(1).required(),
+    transactionId: Joi.string().min(1).required(),
     courierCost: Joi.number().min(1).required(),
     subTotal: Joi.number().min(1).required(),
   });
@@ -243,9 +244,7 @@ function createTransaction(req, res) {
       .status(400)
       .send({ error: { message: error.details[0].message } });
 
-  let transId = uuidv4();
   transaction.buyerId = req.user.id;
-  transaction.transactionId = transId;
 
   userDao
     .findById(req.user.id)
@@ -262,7 +261,7 @@ function createTransaction(req, res) {
 
           let parameter = {
             transaction_details: {
-              order_id: transId,
+              order_id: req.body.transactionId,
               order_qty: transaction.count,
               gross_amount: transaction.subTotal,
             },

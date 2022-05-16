@@ -66,6 +66,7 @@ router.get(
 //! Cart
 router.get("/carts", verifyUser, cartController.findCartByUser);
 router.post("/cart", verifyUser, cartController.createCart);
+router.delete("/carts", verifyUser, cartController.deleteCarts);
 router.delete("/cart/:id", verifyUser, cartController.deleteCart);
 
 //! Transaction

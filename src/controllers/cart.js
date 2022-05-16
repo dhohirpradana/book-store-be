@@ -8,6 +8,7 @@ const cartController = {
   findCartById,
   createCart,
   deleteCart,
+  deleteCarts,
 };
 
 function findCartByUser(req, res) {
@@ -125,6 +126,21 @@ function deleteCart(req, res) {
         .catch((error) => {
           console.log(error);
         });
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
+
+function deleteCarts(req, res) {
+  const id = req.user.id;
+
+  cartDao
+    .deleteByUserId(id)
+    .then(() => {
+      res.status(200).json({
+        message: "carts deleted successfully",
+      });
     })
     .catch((error) => {
       console.log(error);

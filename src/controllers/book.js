@@ -94,7 +94,7 @@ function createBook(req, res) {
     title: Joi.string().min(3).required(),
     author: Joi.string().min(3).required(),
     isbn: Joi.string(),
-    isEbook: Joi.number().min(0).max(1),
+    isEbook: Joi.bool(),
     desc: Joi.string().min(3).required(),
     price: Joi.number().min(3).required(),
     image: Joi.string().required(),

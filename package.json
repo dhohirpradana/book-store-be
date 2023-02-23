@@ -28,7 +28,7 @@
     "rajaongkir-node-js": "^2.0.1",
     "react-scripts": "^5.0.1",
     "rupiah-format": "^1.0.0",
-    "sequelize": "^6.6.4",
+    "sequelize": "^6.28.2",
     "sequelize-cli": "^6.2.0",
     "socket.io": "^4.4.1"
   },
